@@ -1,4 +1,4 @@
-package com.neotys.supermon.customActions;
+package com.neotys.supermonContext.customActions;
 
 import com.neotys.action.argument.ArgumentValidator;
 import com.neotys.action.argument.Option;
@@ -13,38 +13,22 @@ import static com.neotys.extensions.action.ActionParameter.Type.TEXT;
 
 enum SendSuperMonOptions implements Option {
 
-    Project("Project", Required, True, TEXT,
-            "Project id of your Jira project",
-                    "Project id of your Jira project",
+    schemeID("schemeID", Required, True, TEXT,
+            "schemeID of the database monitored by SuperMon",
+                    "schemeID of the database monitored by SuperMon",
           NON_EMPTY),
-    Version("Version", Optional, True, TEXT,
-            "Version of your project (in Jira)",
-                    "Version of your project in jira",
+    databaseType("databaseType", Optional, True, TEXT,
+            "Type of Database ( Oracle, MSSSQL...Etc)",
+                    "Type of Database ( Oracle, MSSSQL...Etc)",
                 NON_EMPTY),
-    Revision("Revision", Optional, False, TEXT,
-            "Revision number ",
-                    "Revision Number",
+    databaseName("databaseName", Optional, False, TEXT,
+            "Name of the database",
+                    "Database name",
                NON_EMPTY),
-    TestPlan("TestPlan", Optional, True, TEXT,
-            "Test Plan Id stored in Jira",
-                    "Test Plan id stored in Jira ",
-                NON_EMPTY),
-    Tags("Tags", Optional, True, TEXT,
-            "Tags to register your test results in JIRA, you can add as many tags as you want but seperated by ,",
-            "Tags to register your test",
-            NON_EMPTY),
-    FixVersions("FixVersions", Optional, False, TEXT,
-            "FixVersion reference in JIRA",
-            "FixVersion freference in JIRA",
-            NON_EMPTY),
-    CustomFields("CustomFields", Optional, False, TEXT,
-            "JIRA CustomFields required to report a test run in Jira. Create a Json PaylOad with all the required fields",
-            "{custofiled_120:value,customfileds_1561:value,custofiled_5121:value}",
-            NON_EMPTY),
-    TestEnvironment("Environment", Optional, True, TEXT,
-            "Reference of the Environment in Jira ",
-                    "Reference of the Environmnet in JIRA",
-              NON_EMPTY);
+    useCaseIdentifier("useCaseIdentifier", Required, True, TEXT,
+            "Use Case identifier to send to SuperMon",
+                    "Use Case identifier to send to SuperMon ",
+                NON_EMPTY);
 
     private final String name;
     private final OptionalRequired optionalRequired;

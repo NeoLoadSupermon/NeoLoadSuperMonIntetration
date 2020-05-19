@@ -5,12 +5,10 @@ public class Constants {
     public static final String HEALTH_PATH="/health";
     public static final String WEBHOOKPATH="/webhookstart";
     public static final String WEBHOOKENDPATH="/webhookend";
-    public static final String DEFAULT_NL_SAAS_API_URL="";
-    public static final String DEFAULT_NL_WEB_API_URL="";
+    public static final String DEFAULT_NL_SAAS_API_URL="neoload-api.saas.neotys.com";
+    public static final String DEFAULT_NL_WEB_API_URL="neoload.saas.neotys.com";
     public static final String API_URL_VERSION="/v1";
     public static final String TESTID_KEY="testid";
-    public static final String MAX_VU_KEY="maxvu";
-    public static final String OVERVIEW_PICTURE_KEY="url_graph_overview";
     public static final String SECRET_API_TOKEN="NL_API_TOKEN";
     public static final String SECRET_NL_WEB_HOST="NL_WEB_HOST";
     public static final String SECRET_SSL="ssl";
@@ -19,8 +17,15 @@ public class Constants {
     public static String LOGING_LEVEL_KEY="logging-level";
     public static int HTTP_PORT=8080;
 
+    public static final String SUPERMON="SuperMon";
+    public static final String DATABASE="Database";
+
+    public static final int SHEDULER_START=1;
+    public static final int SHEDULER_PERIOD=5;
+
     public static final String SECRET_CLOUD_PORT="SupermonPort";
     public static final String SECRET_CLOUD_HOST="SupermonAPIHostname";
+    public static final String SECRET_CLOUD_API_PATH="SupermonAPIPath";
     public static final String SECRET_CLOUD_WEBHOST="SupermonWebHostname";
     public static final String SECRET_USERNAME="user";
     public static final String SECRET_PASSWORD="password";
@@ -31,6 +36,10 @@ public class Constants {
     public static final String DEFAULT_MANAGED_PORT="80";
     public static final String NEOLOAD="neoload";
 
+    public static final String SUPERMON_STATUS_SUCESS="SUCCESS";
+    public static final Integer SUPERMON_CODE_SUCESS=200;
+
+    public static final String SECRET_CLOUD_OAUT_TOKEN_PATH="SUPERMON_OAUTH_PATH";
 
     public static final String HTTPS="https://";
     public static final String NEOLAOD_WEB_URL="/#!result/";
@@ -38,12 +47,14 @@ public class Constants {
 
     //-----url path to interact with SUPERMON----$
     public static final String SUPERMON_API_PATH="/SupermonMSSQL/devaten/data/operation";
-    public static final String SUPERMON_OPERATION_STARTRECORDING="startRecording";
-    public static final String SUPERMON_OPERATION_STOPRECORDING="stopRecording";
+    public static final String SUPERMON_OPERATION_STARTRECORDING="start";
+    public static final String SUPERMON_OPERATION_STOPRECORDING="stop";
     public static final String SUPERMON_OPERATION_RUN="run";
     public static final String GET_OPERATION="action";
     public static final String GET_IDETIFIER="usecaseIdentifier";
     public static final String HEADER_SCHEME="schemaId";
 
+    public static final String OAUT_TOKEN="access_token";
+    public static final String OAUT_EXPIRES="expires_at";
 
 }

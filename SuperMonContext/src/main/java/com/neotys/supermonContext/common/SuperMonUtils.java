@@ -1,4 +1,4 @@
-package com.neotys.supermon.common;
+package com.neotys.supermonContext.common;
 
 import javax.swing.*;
 import java.net.URL;

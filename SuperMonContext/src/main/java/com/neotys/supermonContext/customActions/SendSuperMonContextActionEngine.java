@@ -1,17 +1,19 @@
-package com.neotys.supermon.customActions;
+package com.neotys.supermonContext.customActions;
 
 import com.google.common.base.Optional;
 import com.google.gson.Gson;
+import com.neotys.action.argument.Option;
 import com.neotys.action.result.ResultFactory;
 import com.neotys.ascode.swagger.client.ApiClient;
 import com.neotys.ascode.swagger.client.api.ResultsApi;
+import com.neotys.ascode.swagger.client.model.TestDefinition;
 import com.neotys.ascode.swagger.client.model.TestUpdateRequest;
 import com.neotys.extensions.action.ActionParameter;
 import com.neotys.extensions.action.engine.ActionEngine;
 import com.neotys.extensions.action.engine.Context;
 import com.neotys.extensions.action.engine.Logger;
 import com.neotys.extensions.action.engine.SampleResult;
-import com.neotys.supermon.datamodel.NeoLoadSuperMonDescription;
+import com.neotys.supermonContext.datamodel.NeoLoadSuperMonDescription;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -42,15 +44,10 @@ public class SendSuperMonContextActionEngine implements ActionEngine {
         }
 
 
-        final String project = parsedArgs.get(SendSuperMonOptions.Project.getName()).get();
-        final Optional<String> version = parsedArgs.get(SendSuperMonOptions.Version.getName());
-        final Optional<String> revision = parsedArgs.get(SendSuperMonOptions.Revision.getName());
-        final Optional<String> testplan = parsedArgs.get(SendSuperMonOptions.TestPlan.getName());
-        final Optional<String> environment = parsedArgs.get(SendSuperMonOptions.TestEnvironment.getName());
-
-        final Optional<String> fixVersion = parsedArgs.get((SendSuperMonOptions.FixVersions.getName()));
-        final Optional<String> tags = parsedArgs.get((SendSuperMonOptions.Tags.getName()));
-        final Optional<String> customField = parsedArgs.get((SendSuperMonOptions.CustomFields.getName()));
+        final String schemeID = parsedArgs.get(SendSuperMonOptions.schemeID.getName()).get();
+        final Optional<String> databaseType = parsedArgs.get(SendSuperMonOptions.databaseType.getName());
+        final Optional<String> databaseName = parsedArgs.get(SendSuperMonOptions.databaseName.getName());
+        Optional<String> useCaseIdentifier = parsedArgs.get(SendSuperMonOptions.useCaseIdentifier.getName());
 
 
         final Logger logger = context.getLogger();
@@ -61,8 +58,7 @@ public class SendSuperMonContextActionEngine implements ActionEngine {
 
 
         try {
-            Optional<HashMap<String,String>> customFields;
-            Optional<List<String>> optinalListofTags;
+
             ApiClient client=new ApiClient();
             ResultsApi resultsApi=new ResultsApi(client);
             client.setBasePath(getBasePath(context));
@@ -72,24 +68,14 @@ public class SendSuperMonContextActionEngine implements ActionEngine {
 
             TestUpdateRequest testUpdateRequest =new TestUpdateRequest();
 
-            if(customField.isPresent())
+            if(!useCaseIdentifier.isPresent())
             {
-
-                HashMap<String,String> jsonmap=gson.fromJson(customField.get(), HashMap.class);
-                customFields=Optional.of(jsonmap);
+                TestDefinition definition=resultsApi.getTest(context.getTestId());
+                String testname=definition.getProject()+"_"+definition.getScenario();
+                useCaseIdentifier = Optional.of(testname);
             }
-            else
-               customFields=Optional.absent();
-
-            if(tags.isPresent())
-            {
-                optinalListofTags=Optional.fromNullable(Arrays.asList(tags.get().split(",")));
-            }
-            else
-                optinalListofTags=Optional.absent();
-
-            NeoLoadSuperMonDescription xrayDescription=new NeoLoadSuperMonDescription(project,version,revision,testplan,environment,customFields,optinalListofTags,fixVersion);
-            String description=gson.toJson(xrayDescription);
+            NeoLoadSuperMonDescription superMonDescription=new NeoLoadSuperMonDescription(schemeID,databaseType,databaseName,useCaseIdentifier.get());
+            String description=gson.toJson(superMonDescription);
 
             testUpdateRequest.description(description);
             resultsApi.updateTest(testUpdateRequest,context.getTestId());

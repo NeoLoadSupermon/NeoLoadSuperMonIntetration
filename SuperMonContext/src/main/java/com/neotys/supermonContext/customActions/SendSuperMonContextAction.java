@@ -1,4 +1,4 @@
-package com.neotys.supermon.customActions;
+package com.neotys.supermonContext.customActions;
 
 import com.google.common.base.Optional;
 import com.neotys.action.argument.Arguments;
@@ -6,7 +6,8 @@ import com.neotys.action.argument.Option;
 import com.neotys.extensions.action.Action;
 import com.neotys.extensions.action.ActionParameter;
 import com.neotys.extensions.action.engine.ActionEngine;
-import com.neotys.supermon.common.SuperMonUtils;
+
+import com.neotys.supermonContext.common.SuperMonUtils;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -15,7 +16,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class SendSuperMonContextAction implements Action {
-    private static final String BUNDLE_NAME = "com.neotys.xray.customActions.SendSuperMonContext.bundle";
+    private static final String BUNDLE_NAME = "com.neotys.supermonContext.customActions.SendSuperMonContext.bundle";
     private static final String DISPLAY_NAME = ResourceBundle.getBundle(BUNDLE_NAME, Locale.getDefault()).getString("displayName");
     private static final String DISPLAY_PATH = ResourceBundle.getBundle(BUNDLE_NAME, Locale.getDefault()).getString("displayPath");
 
