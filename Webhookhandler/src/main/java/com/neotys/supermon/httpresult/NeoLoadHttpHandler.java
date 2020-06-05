@@ -72,14 +72,21 @@ public class NeoLoadHttpHandler {
         credentials=new Credentials(user.get(),password.get(),clien_id.get(),client_secret.get(),"read");
     }
 
-    private NeoLoadSuperMonDescription getSuperMonDescriptionFromTest(String description) throws JsonSyntaxException
-    {
+    private NeoLoadSuperMonDescription getSuperMonDescriptionFromTest(String description) throws JsonSyntaxException, ApiException, InterruptedException {
         if(description!=null)
         {
+            if(description.isEmpty()||description.trim().isEmpty())
+            {
+                logger.debug("Description is currently empty");
+                Thread.sleep(1000);
+                description=resultsApi.getTest(testid).getDescription();
+                logger.debug("descritpion retrieved "+ description);
+            }
 
-            logger.debug("Converting Description into java Object");
+            logger.debug("Converting Description into java Object ->    "+ description);
             Gson gson = new GsonBuilder().registerTypeAdapterFactory(new GsonJava8TypeAdapterFactory()).create();
             NeoLoadSuperMonDescription superMonDescription = gson.fromJson(description, NeoLoadSuperMonDescription.class);
+            logger.debug("description converted - scheme : "+ superMonDescription.getSchemeID());
             return superMonDescription;
         }
         else
@@ -168,35 +175,50 @@ public class NeoLoadHttpHandler {
         });
 
     }
-    public Future<Boolean> start(Vertx vertx, Scheduler.Worker worker) throws ApiException {
+    public Future<Boolean> start(Vertx vertx, Scheduler.Worker worker) throws ApiException,JsonSyntaxException {
         Future<Boolean> booleanFuture=Future.future();
-        TestDefinition testDefinition=resultsApi.getTest(testid);
-        logger.info("Getting description from testid "+ testid);
-        NeoLoadSuperMonDescription description=getSuperMonDescriptionFromTest(testDefinition.getDescription());
-        if(description !=null)
-        {
-            logger.debug("description retribed "+description.getSchemeID() + " with usecase "+description.getUseCaseIdentifier() );
-            this.schemeid=description.getSchemeID();
-            this.usecase=description.getUseCaseIdentifier();
-            this.databaseName=description.getDatabaseName();
-            this.databaseType=description.getDatabaseType();
-            Future<String> stringFuture=startRecording(vertx,description.getSchemeID(),description.getUseCaseIdentifier());
-            stringFuture.setHandler(stringAsyncResult -> {
-               if(stringAsyncResult.succeeded())
-               {
-                   subscription=worker.schedulePeriodically(() -> this.run(vertx).subscribe(),SHEDULER_START,SHEDULER_PERIOD, TimeUnit.SECONDS);
-                   booleanFuture.complete();
-               }
-               else
-               {
-                   booleanFuture.fail(stringAsyncResult.cause());
-               }
-            });
-        }
-        else
-        {
-            booleanFuture.fail("No decription found");
+        try {
+            TestDefinition testDefinition = resultsApi.getTest(testid);
+            logger.info("Getting description from testid " + testid);
+            if(testDefinition != null) {
+                NeoLoadSuperMonDescription description = getSuperMonDescriptionFromTest(testDefinition.getDescription());
+                if (description != null) {
+                    logger.debug("description retriVed " + description.getSchemeID() + " with usecase " + description.getUseCaseIdentifier());
+                    this.schemeid = description.getSchemeID();
+                    this.usecase = description.getUseCaseIdentifier();
+                    this.databaseName = description.getDatabaseName();
+                    this.databaseType = description.getDatabaseType();
+                    Future<String> stringFuture = startRecording(vertx, description.getSchemeID(), description.getUseCaseIdentifier());
+                    stringFuture.setHandler(stringAsyncResult -> {
+                        if (stringAsyncResult.succeeded()) {
+                            subscription = worker.schedulePeriodically(() -> this.run(vertx).subscribe(), SHEDULER_START, SHEDULER_PERIOD, TimeUnit.SECONDS);
+                            booleanFuture.complete();
+                        } else {
+                            booleanFuture.fail(stringAsyncResult.cause());
+                        }
+                    });
+                } else {
+                    booleanFuture.fail("No decription found");
 
+                }
+            }
+            else
+                booleanFuture.fail("Test id not found");
+        }
+        catch (ApiException e)
+        {
+            logger.error("API exception ",e);
+            booleanFuture.fail(e);
+        }
+        catch (JsonSyntaxException e)
+        {
+            logger.error("Conversion issue",e);
+            booleanFuture.fail(e);
+        }
+        catch (Exception e)
+        {
+            logger.error("Technical Error",e);
+            booleanFuture.fail(e);
         }
         return booleanFuture;
     }

@@ -1,5 +1,9 @@
 package com.neotys.supermon;
 
+import com.neotys.ascode.swagger.client.ApiClient;
+import com.neotys.ascode.swagger.client.ApiException;
+import com.neotys.ascode.swagger.client.api.ResultsApi;
+import com.neotys.ascode.swagger.client.model.TestDefinition;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.User;
@@ -16,6 +20,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 
+import static com.neotys.supermon.conf.Constants.HTTPS;
+
 public class OauthTesting {
 
     Vertx vertx;
@@ -24,6 +30,17 @@ public class OauthTesting {
     public void before()   {
         vertx = Vertx.vertx();
 
+    }
+    @Test
+    public void getdescription() throws ApiException {
+        ApiClient apiClient;
+        apiClient=new ApiClient();
+        apiClient.setBasePath(HTTPS+"neoload-api.saas.neotys.com/v1");
+        apiClient.setApiKey("2d9232434c41640763d7824af386e31a602f58cb90a90b34");
+        ResultsApi resultsApi=new ResultsApi(apiClient);
+        TestDefinition definition=resultsApi.getTest("f395adbc-41ca-4049-8a7c-eb60b97d4458");
+
+        String description = definition.getDescription();
     }
     @Test
     public void testtime() throws ParseException {

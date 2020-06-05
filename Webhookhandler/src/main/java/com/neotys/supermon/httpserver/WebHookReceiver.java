@@ -65,7 +65,7 @@ public class WebHookReceiver extends AbstractVerticle {
             String testid=body.getString(TESTID_KEY);
 
             //----is test id currently processed?-----
-            if(!neoLoadHttpHandlerHashMap.containsKey(testid))
+            if(neoLoadHttpHandlerHashMap.containsKey(testid))
             {
                 loadLogger.setTestid(testid);
                 loadLogger.debug("Received stop Webhook with testid  " + testid);
@@ -92,7 +92,7 @@ public class WebHookReceiver extends AbstractVerticle {
                 }
             }
             else
-                loadLogger.info(testid + " is already in process");
+                loadLogger.info(testid + " is not  in process");
 
         }
         else
@@ -109,7 +109,7 @@ public class WebHookReceiver extends AbstractVerticle {
         routingContext.response().setStatusCode(200).end("Health Check status OK");
     }
 
-    private void handleWebHookStart(final String testid) throws NeoLoadException, ApiException {
+    private void handleWebHookStart(final String testid) throws NeoLoadException, ApiException,JsonSyntaxException {
 
         if(neoLoadHttpHandlerHashMap.containsKey(testid))
         {

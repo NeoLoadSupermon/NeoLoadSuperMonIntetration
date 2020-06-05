@@ -8,6 +8,8 @@ public class NeoLoadSuperMonDescription {
 
     //---------------
     /*          field description stored
+
+    {"schemeID":"MYSQL_mysql_agent_7491","databaseType":"Mysql","useCaseIdentifier":"NeoLoad_Load_test"}
     {
      schemeID : ,
     databaseType :
