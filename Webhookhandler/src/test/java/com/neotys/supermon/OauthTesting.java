@@ -36,7 +36,7 @@ public class OauthTesting {
         ApiClient apiClient;
         apiClient=new ApiClient();
         apiClient.setBasePath(HTTPS+"neoload-api.saas.neotys.com/v1");
-        apiClient.setApiKey("2d9232434c41640763d7824af386e31a602f58cb90a90b34");
+        apiClient.setApiKey("<YOURAPIKTOKEN>");
         ResultsApi resultsApi=new ResultsApi(apiClient);
         TestDefinition definition=resultsApi.getTest("f395adbc-41ca-4049-8a7c-eb60b97d4458");
 
