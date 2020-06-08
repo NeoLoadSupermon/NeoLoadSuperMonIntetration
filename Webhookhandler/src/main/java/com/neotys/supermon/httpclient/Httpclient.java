@@ -77,11 +77,12 @@ public class Httpclient {
         String site;
         if(ssl)
         {
-            site=HTTPS+serverport+":"+serverport+"/"+cloudpath;
+            site=HTTPS+serverhost+":"+serverport+cloudpath;
         }
         else
-            site="http://"+serverport+":"+serverport+"/"+cloudpath;
+            site="http://"+serverhost+":"+serverport+cloudpath;
 
+        logger.debug("OAuth url "+site);
         OAuth2ClientOptions credentials = new OAuth2ClientOptions()
                 .setClientID(creds.getClient_id())
                 .setClientSecret(creds.getClient_secret())
@@ -97,10 +98,12 @@ public class Httpclient {
 
         oauth2.authenticate(tokenConfig, res -> {
             if (res.failed()) {
+                logger.error("OAuth Failed ",res.cause());
                 apiOauthFuture.fail(res.cause());
             } else {
                 // Get the access token object (the authorization code is given from the previous step).
                 User token = res.result();
+                logger.info("Auth successful "+ token.principal().toString());
                 apiOauthFuture.complete(new ApiOauth(token));
             }
 
@@ -164,7 +167,7 @@ public class Httpclient {
     public void sendGetRequest(Future<JsonObject> future,String uri, HashMap<String,String> headers,HashMap<String,String> queryParams)
     {
 
-
+        logger.debug("Sending get request");
         HttpRequest<Buffer> request = client.get(Integer.parseInt(serverport),serverhost,uri);
 
         MultiMap header=((HttpRequest) request).headers();
@@ -217,10 +220,12 @@ public class Httpclient {
                 {
                     apiOauth=apiOauthAsyncResult.result();
                     headers.put("Authorization","Bearer "+apiOauth.getToken());
+                    logger.debug("Authentification done - seding request ");
                     sendGetRequest(future,uri,headers,queryParams);
                 }
                 else
                 {
+                    logger.debug("Authentification failed");
                     future.fail(apiOauthAsyncResult.cause());
                 }
             });

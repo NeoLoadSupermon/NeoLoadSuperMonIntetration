@@ -46,7 +46,7 @@ public class Constants {
     public static final String NEOLAOD_WEB_LASTPART_URL="/overview";
 
     //-----url path to interact with SUPERMON----$
-    public static final String SUPERMON_API_PATH="/SupermonMSSQL/devaten/data/operation";
+    public static final String SUPERMON_API_PATH="/devaten/data/operation";
     public static final String SUPERMON_OPERATION_STARTRECORDING="start";
     public static final String SUPERMON_OPERATION_STOPRECORDING="stop";
     public static final String SUPERMON_OPERATION_RUN="run";

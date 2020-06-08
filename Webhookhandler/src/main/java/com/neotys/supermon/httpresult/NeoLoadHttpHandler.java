@@ -97,14 +97,16 @@ public class NeoLoadHttpHandler {
     {
         Future<String> futureresult=Future.future();
 
-        subscription.unsubscribe();
-        Httpclient client=new Httpclient(vertx,cloudhost.get(),cloudport.get(),cloud_api_Path.get(),cloud_Oauth_token_path.get(),ssl);
+        if(subscription!=null)
+            subscription.unsubscribe();
+
+        Httpclient client=new Httpclient(vertx,cloudhost.get(),cloudport.get(),cloud_api_Path.get()+SUPERMON_API_PATH,cloud_Oauth_token_path.get(),ssl);
         HashMap<String,String> header=new HashMap<>();
         header.put(HEADER_SCHEME,schemeid);
         HashMap<String,String> params=new HashMap<>();
         params.put(GET_IDETIFIER,usecase);
         params.put(GET_OPERATION,SUPERMON_OPERATION_STOPRECORDING);
-        Future<JsonObject> jsonObjectFuture=client.sendGetOAUTHRequest(cloud_api_Path.get(),header,credentials,params);
+        Future<JsonObject> jsonObjectFuture=client.sendGetOAUTHRequest(cloud_api_Path.get()+SUPERMON_API_PATH,header,credentials,params);
         jsonObjectFuture.setHandler(jsonObjectAsyncResult -> {
             if(jsonObjectAsyncResult.succeeded())
             {
@@ -132,7 +134,7 @@ public class NeoLoadHttpHandler {
         return Completable.create(singleSubscriber -> {
 
             logger.info("Getting description from testid "+ testid);
-            Httpclient client=new Httpclient(vertx,cloudhost.get(),cloudport.get(),cloud_api_Path.get(),cloud_Oauth_token_path.get(),ssl);
+            Httpclient client=new Httpclient(vertx,cloudhost.get(),cloudport.get(),cloud_api_Path.get()+SUPERMON_API_PATH,cloud_Oauth_token_path.get(),ssl);
             HashMap<String,String> header=new HashMap<>();
             header.put(HEADER_SCHEME,schemeid);
             HashMap<String,String> params=new HashMap<>();
@@ -144,14 +146,15 @@ public class NeoLoadHttpHandler {
                 {
                     Gson gson = new GsonBuilder().registerTypeAdapterFactory(new GsonJava8TypeAdapterFactory()).create();
                     SuperMonData superMonData=gson.fromJson(jsonObjectAsyncResult.toString(), SuperMonData.class);
+                    logger.debug("Data receibed "+ superMonData.getUsecaseIdentifier());
                     if(superMonData.getStatus().equalsIgnoreCase(SUPERMON_STATUS_SUCESS)&& superMonData.getResponseCode()==SUPERMON_CODE_SUCESS)
                     {
                         logger.info("Monitoring data collected, sending it nl wb");
-
                         //-----convert to nl metrics
                         MonitorPostRequest monitorPostRequest=new MonitorPostRequest();
                         monitorPostRequest.monitors(superMonData.toCustomMonitor(databaseType,databaseName));
                         try {
+                            logger.debug("Monitoring sent to NeoLoad WEB");
                             resultsApi.postTestMonitors(monitorPostRequest,testid);
                             singleSubscriber.onCompleted();
 
@@ -183,7 +186,7 @@ public class NeoLoadHttpHandler {
             if(testDefinition != null) {
                 NeoLoadSuperMonDescription description = getSuperMonDescriptionFromTest(testDefinition.getDescription());
                 if (description != null) {
-                    logger.debug("description retriVed " + description.getSchemeID() + " with usecase " + description.getUseCaseIdentifier());
+                    logger.debug("description retrived " + description.getSchemeID() + " with usecase " + description.getUseCaseIdentifier());
                     this.schemeid = description.getSchemeID();
                     this.usecase = description.getUseCaseIdentifier();
                     this.databaseName = description.getDatabaseName();
@@ -191,6 +194,7 @@ public class NeoLoadHttpHandler {
                     Future<String> stringFuture = startRecording(vertx, description.getSchemeID(), description.getUseCaseIdentifier());
                     stringFuture.setHandler(stringAsyncResult -> {
                         if (stringAsyncResult.succeeded()) {
+                            logger.debug("Start recording done "+ stringAsyncResult.result());
                             subscription = worker.schedulePeriodically(() -> this.run(vertx).subscribe(), SHEDULER_START, SHEDULER_PERIOD, TimeUnit.SECONDS);
                             booleanFuture.complete();
                         } else {
@@ -231,11 +235,14 @@ public class NeoLoadHttpHandler {
         HashMap<String,String> params=new HashMap<>();
         params.put(GET_IDETIFIER,usecase);
         params.put(GET_OPERATION,SUPERMON_OPERATION_STARTRECORDING);
-        Future<JsonObject> jsonObjectFuture=client.sendGetOAUTHRequest(cloud_api_Path.get(),header,credentials,params);
+        logger.debug("Sending Oauth GET request");
+        Future<JsonObject> jsonObjectFuture=client.sendGetOAUTHRequest(cloud_api_Path.get()+SUPERMON_API_PATH,header,credentials,params);
         jsonObjectFuture.setHandler(jsonObjectAsyncResult -> {
             if(jsonObjectAsyncResult.succeeded())
             {
+                logger.debug("Received response "+ jsonObjectAsyncResult.result().toString());
                 Gson gson = new GsonBuilder().registerTypeAdapterFactory(new GsonJava8TypeAdapterFactory()).create();
+                logger.debug("Converting response ");
                 SupermonStartResponse supermonStartResponse=gson.fromJson(jsonObjectAsyncResult.toString(), SupermonStartResponse.class);
                 if(supermonStartResponse.getStatus().equalsIgnoreCase(SUPERMON_STATUS_SUCESS)&& supermonStartResponse.getResponseCode()==SUPERMON_CODE_SUCESS)
                 {

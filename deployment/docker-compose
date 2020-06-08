@@ -14,7 +14,7 @@ services:
     - logging-level=DEBUG
     - SupermonAPIHostname=3.1.221.225
     - SupermonPort =8110
-    - SupermonAPIPath =/supermon-dashboard
+    - SupermonMainPath=/supermon-dashboard
     - SUPERMON_OAUTH_PATH =/oauth/token
     - client_id =YOURCLIENTID
     - client_secret = YOURSECRET
