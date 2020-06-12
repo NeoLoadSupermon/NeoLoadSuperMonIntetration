@@ -1,19 +1,19 @@
 package com.neotys.supermon.datamodel;
 
 public class SupermonStartResponse extends SupermonResponse {
-    Boolean data;
+    StartData data;
 
-    public SupermonStartResponse(String status,Integer code,Boolean data) {
-        super(status,code);
+    public SupermonStartResponse(String status, Integer code, StartData data, String errormessage, String errcode) {
+        super(status,code,errormessage,errcode);
         this.data = data;
 
     }
 
-    public Boolean getData() {
+    public StartData getData() {
         return data;
     }
 
-    public void setData(Boolean data) {
+    public void setData(StartData data) {
         this.data = data;
     }
 }

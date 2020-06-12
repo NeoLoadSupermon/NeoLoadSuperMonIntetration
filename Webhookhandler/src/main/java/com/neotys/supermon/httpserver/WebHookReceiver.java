@@ -120,8 +120,14 @@ public class WebHookReceiver extends AbstractVerticle {
                 Scheduler scheduler = Schedulers.newThread();
                 Scheduler.Worker worker = scheduler.createWorker();
                 NeoLoadHttpHandler neoLoadHttpHandler=new NeoLoadHttpHandler(testid);
-                neoLoadHttpHandler.start(vertx,worker);
-                neoLoadHttpHandlerHashMap.put(testid,neoLoadHttpHandler);
+                Future<Boolean> future=neoLoadHttpHandler.start(vertx,worker);
+                future.setHandler(asyncResult -> {
+                    if(asyncResult.succeeded())
+                    {
+                        neoLoadHttpHandlerHashMap.put(testid,neoLoadHttpHandler);
+                    }
+
+                });
 
             }
         }

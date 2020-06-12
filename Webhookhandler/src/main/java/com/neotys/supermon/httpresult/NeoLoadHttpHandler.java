@@ -72,17 +72,19 @@ public class NeoLoadHttpHandler {
         credentials=new Credentials(user.get(),password.get(),clien_id.get(),client_secret.get(),"read");
     }
 
-    private NeoLoadSuperMonDescription getSuperMonDescriptionFromTest(String description) throws JsonSyntaxException, ApiException, InterruptedException {
+    private NeoLoadSuperMonDescription getSuperMonDescriptionFromTest(String description) throws JsonSyntaxException, ApiException, InterruptedException, NeoLoadException {
         if(description!=null)
         {
             if(description.isEmpty()||description.trim().isEmpty())
             {
-                logger.debug("Description is currently empty");
-                Thread.sleep(1000);
+                logger.debug("Description is currently empty--let's wait");
+                Thread.sleep(2000);
                 description=resultsApi.getTest(testid).getDescription();
                 logger.debug("descritpion retrieved "+ description);
             }
 
+            if(description.isEmpty()||description.trim().isEmpty())
+                throw new NeoLoadException("the NeoLoad is empty");
             logger.debug("Converting Description into java Object ->    "+ description);
             Gson gson = new GsonBuilder().registerTypeAdapterFactory(new GsonJava8TypeAdapterFactory()).create();
             NeoLoadSuperMonDescription superMonDescription = gson.fromJson(description, NeoLoadSuperMonDescription.class);
@@ -100,7 +102,7 @@ public class NeoLoadHttpHandler {
         if(subscription!=null)
             subscription.unsubscribe();
 
-        Httpclient client=new Httpclient(vertx,cloudhost.get(),cloudport.get(),cloud_api_Path.get()+SUPERMON_API_PATH,cloud_Oauth_token_path.get(),ssl);
+        Httpclient client=new Httpclient(vertx,cloudhost.get(),cloudport.get(),cloud_api_Path.get(),cloud_Oauth_token_path.get(),ssl);
         HashMap<String,String> header=new HashMap<>();
         header.put(HEADER_SCHEME,schemeid);
         HashMap<String,String> params=new HashMap<>();
@@ -110,15 +112,25 @@ public class NeoLoadHttpHandler {
         jsonObjectFuture.setHandler(jsonObjectAsyncResult -> {
             if(jsonObjectAsyncResult.succeeded())
             {
+                logger.debug("Response received "+ jsonObjectAsyncResult.result().toString());
                 Gson gson = new GsonBuilder().registerTypeAdapterFactory(new GsonJava8TypeAdapterFactory()).create();
-                SuperMonStopResponse superMonStopResponse=gson.fromJson(jsonObjectAsyncResult.toString(), SuperMonStopResponse.class);
-                if(superMonStopResponse.getStatus().equalsIgnoreCase(SUPERMON_STATUS_SUCESS)&& superMonStopResponse.getResponseCode()==SUPERMON_CODE_SUCESS)
-                {
-
-                    futureresult.complete(superMonStopResponse.getData());
+                SuperMonStopResponse superMonStopResponse=gson.fromJson(jsonObjectAsyncResult.result().toString(), SuperMonStopResponse.class);
+                if(superMonStopResponse!=null) {
+                    logger.debug("Data receibed from use case"+ superMonStopResponse.getData().getInstanceInformation().getUsecaseIdentifier());
+                    logger.debug("status "+superMonStopResponse.getStatus()+ " code "+ superMonStopResponse.getResponseCode());
+                    if (superMonStopResponse.getStatus().equalsIgnoreCase(SUPERMON_STATUS_SUCESS) && superMonStopResponse.getResponseCode().intValue() == SUPERMON_CODE_SUCESS.intValue()) {
+                        logger.debug("Stop done with sucess "+superMonStopResponse.getData().getInstanceInformation().getUsecaseIdentifier());
+                        futureresult.complete(superMonStopResponse.getData().getApplicationUrl());
+                    } else {
+                        logger.error("Error in the stop recording request");
+                        futureresult.fail("ERROR");
+                    }
                 }
                 else
-                    futureresult.fail("ERROR");
+                {
+                    logger.error("Conversion error");
+                    futureresult.fail(new NeoLoadException("Conversion error "));
+                }
             }
             else
                 futureresult.fail(jsonObjectAsyncResult.cause());
@@ -134,38 +146,47 @@ public class NeoLoadHttpHandler {
         return Completable.create(singleSubscriber -> {
 
             logger.info("Getting description from testid "+ testid);
-            Httpclient client=new Httpclient(vertx,cloudhost.get(),cloudport.get(),cloud_api_Path.get()+SUPERMON_API_PATH,cloud_Oauth_token_path.get(),ssl);
+            Httpclient client=new Httpclient(vertx,cloudhost.get(),cloudport.get(),cloud_api_Path.get(),cloud_Oauth_token_path.get(),ssl);
             HashMap<String,String> header=new HashMap<>();
             header.put(HEADER_SCHEME,schemeid);
             HashMap<String,String> params=new HashMap<>();
             params.put(GET_IDETIFIER,usecase);
             params.put(GET_OPERATION,SUPERMON_OPERATION_RUN);
-            Future<JsonObject> jsonObjectFuture=client.sendGetOAUTHRequest(cloud_api_Path.get(),header,credentials,params);
+            logger.info("Sending run request "+ testid);
+            Future<JsonObject> jsonObjectFuture=client.sendGetOAUTHRequest(cloud_api_Path.get()+SUPERMON_API_PATH,header,credentials,params);
             jsonObjectFuture.setHandler(jsonObjectAsyncResult -> {
                 if(jsonObjectAsyncResult.succeeded())
                 {
+                    logger.debug("Response received "+ jsonObjectAsyncResult.result().toString());
                     Gson gson = new GsonBuilder().registerTypeAdapterFactory(new GsonJava8TypeAdapterFactory()).create();
-                    SuperMonData superMonData=gson.fromJson(jsonObjectAsyncResult.toString(), SuperMonData.class);
-                    logger.debug("Data receibed "+ superMonData.getUsecaseIdentifier());
-                    if(superMonData.getStatus().equalsIgnoreCase(SUPERMON_STATUS_SUCESS)&& superMonData.getResponseCode()==SUPERMON_CODE_SUCESS)
-                    {
-                        logger.info("Monitoring data collected, sending it nl wb");
-                        //-----convert to nl metrics
-                        MonitorPostRequest monitorPostRequest=new MonitorPostRequest();
-                        monitorPostRequest.monitors(superMonData.toCustomMonitor(databaseType,databaseName));
-                        try {
-                            logger.debug("Monitoring sent to NeoLoad WEB");
-                            resultsApi.postTestMonitors(monitorPostRequest,testid);
-                            singleSubscriber.onCompleted();
+                    SuperMonData superMonData=gson.fromJson(jsonObjectAsyncResult.result().toString(), SuperMonData.class);
+                    if(superMonData!=null) {
+                        logger.debug("Data receibed from use case"+ superMonData.getData().getUsecaseIdentifier());
+                        logger.debug("status "+superMonData.getStatus()+ " code "+ superMonData.getResponseCode());
 
-                        } catch (ApiException e) {
-                            logger.error("API Exception",e);
-                            singleSubscriber.onError(e);
+                        if (superMonData.getStatus().equalsIgnoreCase(SUPERMON_RUN_STATUS_SUCESS) && superMonData.getResponseCode().intValue() == SUPERMON_CODE_SUCESS.intValue()) {
+                            logger.info("Monitoring data collected, sending it nl wb");
+                            //-----convert to nl metrics
+                            MonitorPostRequest monitorPostRequest = new MonitorPostRequest();
+                            monitorPostRequest.monitors(superMonData.toCustomMonitor(databaseType, databaseName));
+                            try {
+                                logger.debug("Monitoring sent to NeoLoad WEB");
+                                resultsApi.postTestMonitors(monitorPostRequest, testid);
+                                singleSubscriber.onCompleted();
+
+                            } catch (ApiException e) {
+                                logger.error("API Exception", e);
+                                singleSubscriber.onError(e);
+                            }
+                        } else {
+                            logger.debug("RUN - Unable to find data");
+                            singleSubscriber.onError(new NeoLoadException("RUN - Unable to find data"));
                         }
                     }
-                    else {
-                        logger.debug("RUN - Unable to find data");
-                        singleSubscriber.onError(new NeoLoadException("RUN - Unable to find data"));
+                    else
+                    {
+                        logger.error("Conversion error ");
+                        singleSubscriber.onError(new NeoLoadException("Conversion of response failed"));
                     }
                 }
                 else {
@@ -198,10 +219,12 @@ public class NeoLoadHttpHandler {
                             subscription = worker.schedulePeriodically(() -> this.run(vertx).subscribe(), SHEDULER_START, SHEDULER_PERIOD, TimeUnit.SECONDS);
                             booleanFuture.complete();
                         } else {
+                            logger.error("Technical error ",stringAsyncResult.cause());
                             booleanFuture.fail(stringAsyncResult.cause());
                         }
                     });
                 } else {
+                    logger.info("No description found");
                     booleanFuture.fail("No decription found");
 
                 }
@@ -217,6 +240,11 @@ public class NeoLoadHttpHandler {
         catch (JsonSyntaxException e)
         {
             logger.error("Conversion issue",e);
+            booleanFuture.fail(e);
+        }
+        catch (NeoLoadException e)
+        {
+            logger.error("NeoLoad exception ",e);
             booleanFuture.fail(e);
         }
         catch (Exception e)
@@ -240,19 +268,39 @@ public class NeoLoadHttpHandler {
         jsonObjectFuture.setHandler(jsonObjectAsyncResult -> {
             if(jsonObjectAsyncResult.succeeded())
             {
-                logger.debug("Received response "+ jsonObjectAsyncResult.result().toString());
+                logger.debug("Received response ");
                 Gson gson = new GsonBuilder().registerTypeAdapterFactory(new GsonJava8TypeAdapterFactory()).create();
                 logger.debug("Converting response ");
-                SupermonStartResponse supermonStartResponse=gson.fromJson(jsonObjectAsyncResult.toString(), SupermonStartResponse.class);
-                if(supermonStartResponse.getStatus().equalsIgnoreCase(SUPERMON_STATUS_SUCESS)&& supermonStartResponse.getResponseCode()==SUPERMON_CODE_SUCESS)
-                {
-                    futureresult.complete(SUPERMON_STATUS_SUCESS);
+                logger.debug(jsonObjectAsyncResult.result().toString());
+                SupermonStartResponse supermonStartResponse=gson.fromJson(jsonObjectAsyncResult.result().toString(), SupermonStartResponse.class);
+                if(supermonStartResponse !=null) {
+                    logger.debug(supermonStartResponse.getStatus() + " status of the respose " + supermonStartResponse.getResponseCode() + " " + supermonStartResponse.getData().getInstanceInformation().getDatabaseType());
+                    if (supermonStartResponse.getStatus().equalsIgnoreCase(SUPERMON_STATUS_SUCESS) && supermonStartResponse.getResponseCode().intValue() == SUPERMON_CODE_SUCESS.intValue()) {
+
+                        databaseType = supermonStartResponse.getData().getInstanceInformation().getDatabaseType();
+                        databaseName = supermonStartResponse.getData().getInstanceInformation().getDatabaseName();
+
+                        logger.debug("Foud "+databaseName+" of "+databaseType);
+                        futureresult.complete(SUPERMON_STATUS_SUCESS);
+                    } else {
+                        if (supermonStartResponse.getErrorCode() != null && supermonStartResponse.getErrorMessage() != null)
+                            logger.error("Start recording issue error code :" + supermonStartResponse.getErrorCode() + "message ");
+                        else
+                            logger.error("Start recording issue code "+supermonStartResponse.getResponseCode() +" status "+ supermonStartResponse.getStatus());
+
+                        futureresult.fail(supermonStartResponse.getStatus());
+                    }
                 }
                 else
-                    futureresult.fail(supermonStartResponse.getStatus());
+                {
+                    logger.error("Converstion issue");
+                    futureresult.fail(new NeoLoadException("Conversion issue"));
+                }
             }
-            else
+            else {
+                logger.error("Technical error ",jsonObjectAsyncResult.cause());
                 futureresult.fail(jsonObjectAsyncResult.cause());
+            }
 
         });
         return futureresult;
@@ -331,11 +379,11 @@ public class NeoLoadHttpHandler {
         if(!clien_id.isPresent())
             throw new NeoLoadException("The client_id environment varaible is missing");
 
-        user=Optional.ofNullable(System.getenv(SECRET_CLIENTID)).filter(o->!o.isEmpty());
+        user=Optional.ofNullable(System.getenv(SECRET_USERNAME)).filter(o->!o.isEmpty());
         if(!user.isPresent())
             throw new NeoLoadException("The user environment varaible is missing");
 
-        password=Optional.ofNullable(System.getenv(SECRET_CLIENTID)).filter(o->!o.isEmpty());
+        password=Optional.ofNullable(System.getenv(SECRET_PASSWORD)).filter(o->!o.isEmpty());
         if(!password.isPresent())
             throw new NeoLoadException("The password environment varaible is missing");
 
@@ -343,13 +391,6 @@ public class NeoLoadHttpHandler {
         if(!client_secret.isPresent())
             throw new NeoLoadException("The client_secret environment varaible is missing");
 
-        clien_id=Optional.ofNullable(System.getenv(SECRET_CLIENTID)).filter(o->!o.isEmpty());
-        if(!clien_id.isPresent())
-            throw new NeoLoadException("The client_id environment varaible is missing");
-
-        client_secret=Optional.ofNullable(System.getenv(SECRET_CLIENT_SECRET)).filter(o->!o.isEmpty());
-        if(!client_secret.isPresent())
-            throw new NeoLoadException("The client_secret environment varaible is missing");
 
         cloud_api_Path=Optional.ofNullable(System.getenv(SECRET_CLOUD_API_PATH)).filter(o->!o.isEmpty());
         if(!cloud_api_Path.isPresent())

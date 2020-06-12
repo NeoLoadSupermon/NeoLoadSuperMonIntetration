@@ -82,6 +82,7 @@ public class Httpclient {
         else
             site="http://"+serverhost+":"+serverport+cloudpath;
 
+        logger.debug("Credes seetings : "+site +" client id : "+creds.getClient_id() +" secret : "+ creds.getClient_secret() + " user "+ creds.getUser() + " password "+ creds.getPassword() +" oauth path  "+ this.token_path + " scope "+ creds.getScope());
         logger.debug("OAuth url "+site);
         OAuth2ClientOptions credentials = new OAuth2ClientOptions()
                 .setClientID(creds.getClient_id())
@@ -167,39 +168,59 @@ public class Httpclient {
     public void sendGetRequest(Future<JsonObject> future,String uri, HashMap<String,String> headers,HashMap<String,String> queryParams)
     {
 
-        logger.debug("Sending get request");
+        logger.debug("Sending get request to "+ uri +" servhost "+serverhost +" port "+ serverport  );
         HttpRequest<Buffer> request = client.get(Integer.parseInt(serverport),serverhost,uri);
 
         MultiMap header=((HttpRequest) request).headers();
-        header.addAll(headers);
+        headers.forEach((s, s2) -> {
+            logger.debug("adding header "+s+" value "+s2);
+            header.add(s,s2);
+        });
 
 
         if(queryParams!=null)
         {
+            logger.debug("adding parameters ");
             queryParams.forEach((s, s2) -> {
                 request.addQueryParam(s,s2);
+                logger.debug(" parametere "+s+" value "+s2);
             });
         }
+
+        header.forEach(stringStringEntry -> {
+
+            logger.debug("Hader "+ stringStringEntry.getKey()+" value "+ stringStringEntry.getValue());
+        });
+
         request.putHeaders(header)
-                .expect(ResponsePredicate.JSON)
-                .expect(ResponsePredicate.status(200,300))
                 .send(handler->{
                     if(handler.succeeded())
                     {
-                        logger.debug("Request sent successfuly - uri :"+uri);
-                        future.complete(handler.result().bodyAsJsonObject());
-                        logger.debug("Received the following response :"+ handler.result().toString());
+                        if(handler.result().statusCode()>=200 && handler.result().statusCode()<400) {
+                            logger.debug("Request sent successfuly - uri :" + uri);
+                            logger.debug("Received the following response :" + handler.result().toString());
+                            future.complete(handler.result().bodyAsJsonObject());
+
+                        }
+                        else
+                        {
+                            logger.error("Response code :" + handler.result().statusCode() + " and response  " + handler.result().bodyAsString());
+                            future.fail("Response code :" + handler.result().statusCode() + " and response  " + handler.result().bodyAsString());
+
+                        }
                     }
                     else
                     {
                         logger.error("Issue to get response ");
                         if(handler.result()!=null) {
-                            future.fail("Response code :" + handler.result().statusCode() + " and response  " + handler.result().bodyAsString());
                             logger.error("Response code :" + handler.result().statusCode() + " and response  " + handler.result().bodyAsString());
+                            future.fail("Response code :" + handler.result().statusCode() + " and response  " + handler.result().bodyAsString());
+
                         }
                         else {
-                            future.fail("no Response " + handler.cause().getMessage());
                             logger.error("no Response ", handler.cause());
+                            future.fail("no Response " + handler.cause().getMessage());
+
                         }
 
                     }
@@ -221,6 +242,9 @@ public class Httpclient {
                     apiOauth=apiOauthAsyncResult.result();
                     headers.put("Authorization","Bearer "+apiOauth.getToken());
                     logger.debug("Authentification done - seding request ");
+                    headers.forEach((s, s2) -> {
+                        logger.debug("header key "+s +" value "+s2);
+                    });
                     sendGetRequest(future,uri,headers,queryParams);
                 }
                 else

@@ -94,27 +94,31 @@ public class SuPerMonEntry {
         path.add(SUPERMON);
         path.add(databaseType);
         path.add(databaseName);
-        MapWDouble.forEach((s, aDouble) -> {
-            List<String> metricPath=new ArrayList<>();
-            metricPath.addAll(path);
-            metricPath.add(s);
-            CustomMonitor monitor=new CustomMonitor();
-            monitor.setPath(metricPath);
-            monitor.setUnit(null);
-            monitor.setName(s);
-            CustomMonitorValues valuesInners=new CustomMonitorValues();
-            // valuesInners.s
-            CustomMonitorValuesInner customMonitorValuesInner=new CustomMonitorValuesInner();
-            try {
-                customMonitorValuesInner.setTimestamp(convertDate()/1000);
-            } catch (ParseException e) {
-                customMonitorValuesInner.setTimestamp(Instant.now().getEpochSecond());
-            }
+        if(MapWDouble!=null) {
+            MapWDouble.forEach((s, aDouble) -> {
+                if (aDouble != null) {
+                    List<String> metricPath = new ArrayList<>();
+                    metricPath.addAll(path);
+                    metricPath.add(s);
+                    CustomMonitor monitor = new CustomMonitor();
+                    monitor.setPath(metricPath);
+                    monitor.setUnit(null);
+                    monitor.setName(s);
+                    CustomMonitorValues valuesInners = new CustomMonitorValues();
+                    // valuesInners.s
+                    CustomMonitorValuesInner customMonitorValuesInner = new CustomMonitorValuesInner();
+                    try {
+                        customMonitorValuesInner.setTimestamp(convertDate() / 1000);
+                    } catch (ParseException e) {
+                        customMonitorValuesInner.setTimestamp(Instant.now().getEpochSecond());
+                    }
 
-            customMonitorValuesInner.setValue((float)aDouble.doubleValue());
-            valuesInners.add(customMonitorValuesInner);
-            monitor.setValues(valuesInners);
-        });
+                    customMonitorValuesInner.setValue((float) aDouble.doubleValue());
+                    valuesInners.add(customMonitorValuesInner);
+                    monitor.setValues(valuesInners);
+                }
+            });
+        }
 
 
     }

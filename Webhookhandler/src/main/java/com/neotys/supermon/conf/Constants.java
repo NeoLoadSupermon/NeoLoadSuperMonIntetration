@@ -37,7 +37,8 @@ public class Constants {
     public static final String NEOLOAD="neoload";
 
     public static final String SUPERMON_STATUS_SUCESS="SUCCESS";
-    public static final Integer SUPERMON_CODE_SUCESS=200;
+    public static final String SUPERMON_RUN_STATUS_SUCESS="200 OK";
+    public static final Integer SUPERMON_CODE_SUCESS=new Integer(200);
 
     public static final String SECRET_CLOUD_OAUT_TOKEN_PATH="SUPERMON_OAUTH_PATH";
 
