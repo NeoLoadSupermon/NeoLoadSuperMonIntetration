@@ -6,6 +6,7 @@ import com.google.gson.JsonSyntaxException;
 import com.neotys.ascode.swagger.client.ApiClient;
 import com.neotys.ascode.swagger.client.ApiException;
 import com.neotys.ascode.swagger.client.api.ResultsApi;
+import com.neotys.ascode.swagger.client.model.CustomMonitor;
 import com.neotys.ascode.swagger.client.model.MonitorPostRequest;
 import com.neotys.ascode.swagger.client.model.TestDefinition;
 import com.neotys.ascode.swagger.client.model.TestStatistics;
@@ -28,6 +29,7 @@ import rx.Single;
 import rx.Subscription;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -161,6 +163,7 @@ public class NeoLoadHttpHandler {
                     Gson gson = new GsonBuilder().registerTypeAdapterFactory(new GsonJava8TypeAdapterFactory()).create();
                     SuperMonData superMonData=gson.fromJson(jsonObjectAsyncResult.result().toString(), SuperMonData.class);
                     if(superMonData!=null) {
+                        superMonData.getData().convertToSuperMonEntry();
                         logger.debug("Data receibed from use case"+ superMonData.getData().getUsecaseIdentifier());
                         logger.debug("status "+superMonData.getStatus()+ " code "+ superMonData.getResponseCode());
 
@@ -168,14 +171,22 @@ public class NeoLoadHttpHandler {
                             logger.info("Monitoring data collected, sending it nl wb");
                             //-----convert to nl metrics
                             MonitorPostRequest monitorPostRequest = new MonitorPostRequest();
-                            monitorPostRequest.monitors(superMonData.toCustomMonitor(databaseType, databaseName));
+                            List<CustomMonitor> customMonitorList =superMonData.toCustomMonitor(databaseType, databaseName,logger);
                             try {
-                                logger.debug("Monitoring sent to NeoLoad WEB");
-                                resultsApi.postTestMonitors(monitorPostRequest, testid);
+                                if(customMonitorList.size()>0) {
+                                    monitorPostRequest.monitors(customMonitorList);
+                                    logger.debug("Monitoring sent to NeoLoad WEB");
+                                    resultsApi.postTestMonitors(monitorPostRequest, testid);
+                                }
+                                else
+                                {
+                                    logger.debug("Monitoring data list is empty");
+                                }
                                 singleSubscriber.onCompleted();
 
                             } catch (ApiException e) {
                                 logger.error("API Exception", e);
+                                logger.error("Message -> "+e.getResponseBody());
                                 singleSubscriber.onError(e);
                             }
                         } else {

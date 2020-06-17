@@ -3,13 +3,13 @@ package com.neotys.supermon.datamodel;
 import com.neotys.ascode.swagger.client.model.CustomMonitor;
 import com.neotys.ascode.swagger.client.model.CustomMonitorValues;
 import com.neotys.ascode.swagger.client.model.CustomMonitorValuesInner;
+import com.neotys.supermon.Logger.NeoLoadLogger;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.neotys.supermon.conf.Constants.DATABASE;
 import static com.neotys.supermon.conf.Constants.SUPERMON;
@@ -22,13 +22,59 @@ public class SuPerMonEntry {
     Integer ID_NUM;
     Integer ID;
 
-    public SuPerMonEntry(String STARTTIMESTMAP,String uscase,Integer id_num,Integer id,  Map<String, String> mapwString, Map<String, Double> mapWDouble) {
+    public SuPerMonEntry(String STARTTIMESTMAP, String uscase, Integer id_num, Integer id, HashMap<String, String> mapwString, HashMap<String, Double> mapWDouble) {
         this.STARTTIMESTMAP = STARTTIMESTMAP;
         this.MapwString = mapwString;
         this.MapWDouble = mapWDouble;
         this.USECASE_IDENTIFIER=uscase;
         this.ID_NUM=id_num;
         this.ID=id;
+
+    }
+    public SuPerMonEntry(Map<String,Object> map)
+    {
+        MapwString = new HashMap<>();
+        MapWDouble=new HashMap<>();
+        if(map.containsKey("STARTTIMESTMAP"))
+        {
+            this.STARTTIMESTMAP=(String)map.get("STARTTIMESTMAP");
+        }
+        else
+            this.STARTTIMESTMAP=null;
+
+        if(map.containsKey("USECASE_IDENTIFIER"))
+        {
+            this.USECASE_IDENTIFIER=(String)map.get("USECASE_IDENTIFIER");
+        }
+        else
+            this.USECASE_IDENTIFIER=null;
+
+        if(map.containsKey("ID_NUM"))
+        {
+            this.ID_NUM=(Integer)map.get("ID_NUM");
+        }
+        else
+            this.ID_NUM=null;
+
+        if(map.containsKey("ID"))
+        {
+            this.ID=(Integer)map.get("ID");
+        }
+        else
+            this.ID=null;
+
+        map.forEach((s, o) -> {
+            if(o!=null) {
+                if (o instanceof String) {
+                    if(!s.equalsIgnoreCase("USECASE_IDENTIFIER")&&!s.equalsIgnoreCase("ID")&&!s.equalsIgnoreCase("ID_NUM")&&!s.equalsIgnoreCase("STARTTIMESTMAP"))
+                         this.MapwString.put(s, (String) o);
+                } else {
+                    if (o instanceof Double) {
+                        this.MapWDouble.put(s, (Double) o);
+                    }
+                }
+            }
+        });
 
     }
 
@@ -74,7 +120,7 @@ public class SuPerMonEntry {
         return MapwString;
     }
 
-    public void setMapwString(Map<String, String> mapwString) {
+    public void setMapwString(HashMap<String, String> mapwString) {
         MapwString = mapwString;
     }
 
@@ -82,11 +128,11 @@ public class SuPerMonEntry {
         return MapWDouble;
     }
 
-    public void setMapWDouble(Map<String, Double> mapWDouble) {
+    public void setMapWDouble(HashMap<String, Double> mapWDouble) {
         MapWDouble = mapWDouble;
     }
 
-    public void toCustomMonitor(List<CustomMonitor> customMonitors,String databaseType,String databaseName)
+    public void toCustomMonitor(List<CustomMonitor> customMonitors, String databaseType, String databaseName,  NeoLoadLogger logger)
     {
 
         List<String> path = new ArrayList<>();
@@ -94,6 +140,7 @@ public class SuPerMonEntry {
         path.add(SUPERMON);
         path.add(databaseType);
         path.add(databaseName);
+        logger.debug("Path-> "+String.join("/",path));
         if(MapWDouble!=null) {
             MapWDouble.forEach((s, aDouble) -> {
                 if (aDouble != null) {
@@ -101,6 +148,7 @@ public class SuPerMonEntry {
                     metricPath.addAll(path);
                     metricPath.add(s);
                     CustomMonitor monitor = new CustomMonitor();
+                    logger.debug("Path-> "+String.join("/",metricPath));
                     monitor.setPath(metricPath);
                     monitor.setUnit(null);
                     monitor.setName(s);
@@ -109,16 +157,21 @@ public class SuPerMonEntry {
                     CustomMonitorValuesInner customMonitorValuesInner = new CustomMonitorValuesInner();
                     try {
                         customMonitorValuesInner.setTimestamp(convertDate() / 1000);
+                        logger.debug("date of metrics "+ String.valueOf(convertDate()/1000));
                     } catch (ParseException e) {
                         customMonitorValuesInner.setTimestamp(Instant.now().getEpochSecond());
                     }
 
                     customMonitorValuesInner.setValue((float) aDouble.doubleValue());
+                    logger.debug("Value -> "+String.valueOf((float) aDouble.doubleValue()));
                     valuesInners.add(customMonitorValuesInner);
                     monitor.setValues(valuesInners);
+                    customMonitors.add(monitor);
                 }
             });
         }
+        else
+            logger.debug("Map double is empty");
 
 
     }

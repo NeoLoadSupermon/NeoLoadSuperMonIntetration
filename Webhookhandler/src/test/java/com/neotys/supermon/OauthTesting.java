@@ -68,6 +68,7 @@ public class OauthTesting {
         Gson gson = new GsonBuilder().registerTypeAdapterFactory(new GsonJava8TypeAdapterFactory()).create();
 
         SuperMonData supermonStartResponse=gson.fromJson(response2, SuperMonData.class);
+        supermonStartResponse.getData().convertToSuperMonEntry();
         System.out.println(supermonStartResponse.getData().getUsecaseIdentifier());
 
     }
