@@ -146,12 +146,11 @@ public class SuPerMonEntry {
                 if (aDouble != null) {
                     List<String> metricPath = new ArrayList<>();
                     metricPath.addAll(path);
-                    metricPath.add(s);
                     CustomMonitor monitor = new CustomMonitor();
                     logger.debug("Path-> "+String.join("/",metricPath));
                     monitor.setPath(metricPath);
                     monitor.setUnit(null);
-                    monitor.setName(s);
+                    monitor.setName(s.toLowerCase());
                     CustomMonitorValues valuesInners = new CustomMonitorValues();
                     // valuesInners.s
                     CustomMonitorValuesInner customMonitorValuesInner = new CustomMonitorValuesInner();

@@ -6,10 +6,7 @@ import com.google.gson.JsonSyntaxException;
 import com.neotys.ascode.swagger.client.ApiClient;
 import com.neotys.ascode.swagger.client.ApiException;
 import com.neotys.ascode.swagger.client.api.ResultsApi;
-import com.neotys.ascode.swagger.client.model.CustomMonitor;
-import com.neotys.ascode.swagger.client.model.MonitorPostRequest;
-import com.neotys.ascode.swagger.client.model.TestDefinition;
-import com.neotys.ascode.swagger.client.model.TestStatistics;
+import com.neotys.ascode.swagger.client.model.*;
 import com.neotys.supermon.Logger.NeoLoadLogger;
 import com.neotys.supermon.common.NeoLoadException;
 import com.neotys.supermon.conf.Constants.*;
@@ -122,7 +119,16 @@ public class NeoLoadHttpHandler {
                     logger.debug("status "+superMonStopResponse.getStatus()+ " code "+ superMonStopResponse.getResponseCode());
                     if (superMonStopResponse.getStatus().equalsIgnoreCase(SUPERMON_STATUS_SUCESS) && superMonStopResponse.getResponseCode().intValue() == SUPERMON_CODE_SUCESS.intValue()) {
                         logger.debug("Stop done with sucess "+superMonStopResponse.getData().getInstanceInformation().getUsecaseIdentifier());
-                        futureresult.complete(superMonStopResponse.getData().getApplicationUrl());
+                        TestUpdateRequest updateRequest = new TestUpdateRequest();
+                        updateRequest.description("SupmerMon Dashboard : " + superMonStopResponse.getData().getApplicationUrl());
+                        logger.debug("URL to reach dashboard : "+updateRequest.getDescription());
+                        try {
+                            resultsApi.updateTest(updateRequest, testid);
+                            futureresult.complete(superMonStopResponse.getData().getApplicationUrl());
+                        } catch (ApiException e) {
+                            logger.error("API Exeption "+e.getResponseBody(),e);
+                        }
+
                     } else {
                         logger.error("Error in the stop recording request");
                         futureresult.fail("ERROR");
