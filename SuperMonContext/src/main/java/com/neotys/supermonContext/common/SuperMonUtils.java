@@ -8,7 +8,7 @@ public  class SuperMonUtils {
 
     static {
 
-        final URL iconURL = SuperMonUtils.class.getResource("Logo-SuperMon.png");
+        final URL iconURL = SuperMonUtils.class.getResource("supermon.png");
         if (iconURL != null) {
             SUPERMON_ICON = new ImageIcon(iconURL);
         } else {
