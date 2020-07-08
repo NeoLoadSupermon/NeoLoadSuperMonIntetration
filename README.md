@@ -32,7 +32,7 @@ SupermonContext will update the test results in NeoLoad web with all the informa
 1. Download the [latest release]() for NeoLoad from version 7.0
 1. Read the NeoLoad documentation to see [How to install a custom Advanced Action](https://www.neotys.com/documents/doc/neoload/latest/en/html/#25928.htm).
 
-<p align="center"><img src="/screeshots/customaction.png" alt="SupermonContext Advanced Action" /></p>
+<p align="center"><img src="/screeshots/customactions.png" alt="SupermonContext Advanced Action" /></p>
 
 ### NeoLoad Set-up
 
@@ -46,12 +46,12 @@ Once installed, how to use in a given NeoLoad project:
 
 
 1. Create a NeoLoad Population SuperMonContext having only the userPath SuperMonContext
-<p align="center"><img src="/screenhots/population.png" alt="XrayContext Population" /></p>
+<p align="center"><img src="/screeshots/population.png" alt="Supermon Population" /></p>
 1. Create a NeoLoad Scenario Using your population and the SuperMonContext Population
 The SuperMonContext Population would need to be added to your NeoLoad scenario with the following settings :
 * Duration : iteration
 * Load Policy : Constant : 1 user doing 1 iteration
-<p align="center"><img src="/screenshots/runtime.png" alt="XrayContext scenario" /></p>
+<p align="center"><img src="/screeshots/runtime.png" alt="Supermon scenario" /></p>
 
 ### Parameters for XrayContext
    
