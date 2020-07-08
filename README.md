@@ -121,7 +121,7 @@ To configure the webhook in NeoLoad WEB you will need to :
 2. Click on 
 3. Click On the TAB named WebHook
 4. Create a new Webhook ( [How to create a webhook](https://www.neotys.com/documents/doc/nlweb/latest/en/html/#27141.htm))
-5. URL of the webhook : http://<IP of you WEBHOOKHANDLER>:8080/webhookend
+5. URL of the webhook : http://IP of you WEBHOOKHANDLER:8080/webhookend
 6. Events : Test ended
 7. Payload :
 ```json
@@ -131,7 +131,7 @@ To configure the webhook in NeoLoad WEB you will need to :
 ```
 <p align="center"><img src="/screeshots/webhook.png" alt="XrayContext webhok" /></p>
 8. Create a new Webhook ( [How to create a webhook](https://www.neotys.com/documents/doc/nlweb/latest/en/html/#27141.htm))
-9. URL of the webhook : http://<IP of you WEBHOOKHANDLER>:8080/webhookstart
+9. URL of the webhook : http://IP of you WEBHOOKHANDLER:8080/webhookstart
 10. Events : Test started
 11. Payload :
 ```json
