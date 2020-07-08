@@ -130,7 +130,8 @@ To configure the webhook in NeoLoad WEB you will need to :
 }
 ```
 
-<p align="center"><img src="/screeshots/webhook.png" alt="Supermon webhok" /></p>
+<p align="center"><img src="/screeshots/webhook.png" alt="Supermon webhok"/></p>
+
 8. Create a new Webhook ( [How to create a webhook](https://www.neotys.com/documents/doc/nlweb/latest/en/html/#27141.htm))
 9. URL of the webhook : http://IP of you WEBHOOKHANDLER:8080/webhookstart
 10. Events : Test started
