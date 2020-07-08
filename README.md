@@ -126,7 +126,7 @@ To configure the webhook in NeoLoad WEB you will need to :
 7. Payload :
 ```json
 {
-            "testid": "$(test_id)"
+            "testid": "$(test_result_id)"
 }
 ```
 <p align="center"><img src="/screeshots/webhook.png" alt="XrayContext webhok" /></p>
@@ -136,7 +136,7 @@ To configure the webhook in NeoLoad WEB you will need to :
 11. Payload :
 ```json
 {
-            "testid": "$(test_id)"
+            "testid": "$(test_result_id)"
 }
 ```
 <p align="center"><img src="/screenshots/webhook.png" alt="SuperMon webhok" /></p>
