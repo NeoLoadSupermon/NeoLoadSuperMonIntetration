@@ -1,4 +1,5 @@
 # NeoLoad SuperMon Integration
+<p align="center"><img src="/screeshots/PNG 4.png" width="40%" alt="SuperMon Logo" /></p>
 
 This project is aimed to integrate NeoLoad with Supermon, giving users the ability to track database behavior during a load test.
 This project has 2 disctinct components :
@@ -11,7 +12,7 @@ This custom action will allow you to add all the project information required in
    * `databaseName` (Optional) : Name of the database
    * `useCaseIdentifier` (Required) : Name of the test
 
-DatabaseType and databaseName will structure the data collected from SUpermon in NeoLoad WEB
+DatabaseType and databaseName will structure the data collected from Supermon in NeoLoad WEB
 
 SupermonContext will update the test results in NeoLoad web with all the information required to be able to Interact with SUpermon during the test
 
@@ -31,24 +32,26 @@ SupermonContext will update the test results in NeoLoad web with all the informa
 1. Download the [latest release]() for NeoLoad from version 7.0
 1. Read the NeoLoad documentation to see [How to install a custom Advanced Action](https://www.neotys.com/documents/doc/neoload/latest/en/html/#25928.htm).
 
-<p align="center"><img src="/screenshots/custom_action.png" alt="SupermonContext Advanced Action" /></p>
+<p align="center"><img src="/screeshots/customaction.png" alt="SupermonContext Advanced Action" /></p>
 
 ### NeoLoad Set-up
 
 Once installed, how to use in a given NeoLoad project:
 
 1. Create a `SuperMonContext` User Path.
-1. Insert `SuperMonContext` in the `Action` block.
-<p align="center"><img src="/screenshots/vu2.png" alt="SuperMonContext User Path" /></p>
+1. Insert `SuperMonContext` in the `Init` block.
+<p align="center"><img src="/screeshots/vu.png" alt="SuperMonContext User Path" /></p>
+1. Add a `Delay` in the  `Action` block
+<p align="center"><img src="/screeshots/vu_settings.png" alt="SuperMonContext User Path" /></p>
 
 
 1. Create a NeoLoad Population SuperMonContext having only the userPath SuperMonContext
-<p align="center"><img src="/screenshots/population.png" alt="XrayContext Population" /></p>
+<p align="center"><img src="/screenhots/population.png" alt="XrayContext Population" /></p>
 1. Create a NeoLoad Scenario Using your population and the SuperMonContext Population
 The SuperMonContext Population would need to be added to your NeoLoad scenario with the following settings :
 * Duration : iteration
 * Load Policy : Constant : 1 user doing 1 iteration
-<p align="center"><img src="/screenshots/scenario.png" alt="XrayContext scenario" /></p>
+<p align="center"><img src="/screenshots/runtime.png" alt="XrayContext scenario" /></p>
 
 ### Parameters for XrayContext
    
@@ -106,7 +109,7 @@ The webhookhandler service is listenning to 2 disctinct endpoints :
 * `/webhookstart` : POST request to receive the webhook from NeoLoad WEB for the test started event
 * `/webhookend` :   POST request to receive the webhook from NeoLoad WEB for the test ended event
 
-The Webhookhandler is expecting the following Json Payload :
+The Webhookhandler is expecting the following Json Payload for:
 ```json
 {
 	"testid" : "TESTID"
@@ -126,7 +129,7 @@ To configure the webhook in NeoLoad WEB you will need to :
             "testid": "$(test_id)"
 }
 ```
-<p align="center"><img src="/screenshots/webhook.png" alt="XrayContext webhok" /></p>
+<p align="center"><img src="/screeshots/webhook.png" alt="XrayContext webhok" /></p>
 8. Create a new Webhook ( [How to create a webhook](https://www.neotys.com/documents/doc/nlweb/latest/en/html/#27141.htm))
 9. URL of the webhook : http://<IP of you WEBHOOKHANDLER>:8080/webhookstart
 10. Events : Test started
@@ -136,4 +139,13 @@ To configure the webhook in NeoLoad WEB you will need to :
             "testid": "$(test_id)"
 }
 ```
-<p align="center"><img src="/screenshots/webhook.png" alt="XrayContext webhok" /></p>
+<p align="center"><img src="/screenshots/webhook.png" alt="SuperMon webhok" /></p>
+
+#### Database monitoring coming in NeoLaod WEB dashboard
+Once the integration configured , you will automatically receive monitoring data related to your database in Neoload WEB:
+<p align="center"><img src="/screeshots/monitoring.png" alt="Supermon Data" /></p>
+
+
+At the end of the test you will be able to access to detailed report related to the activty generated on your database.
+The link to the report will be accesissible from the overview tab of your test :
+<p align="center"><img src="/screeshots/link.png" alt="Supermon LInk " /></p>
