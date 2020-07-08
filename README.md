@@ -141,7 +141,6 @@ To configure the webhook in NeoLoad WEB you will need to :
             "testid": "$(test_result_id)"
 }
 ```
-<p align="center"><img src="/screenshots/webhook.png" alt="SuperMon webhok" /></p>
 
 #### Database monitoring coming in NeoLaod WEB dashboard
 Once the integration configured , you will automatically receive monitoring data related to your database in Neoload WEB:
