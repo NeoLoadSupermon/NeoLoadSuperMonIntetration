@@ -1,19 +1,226 @@
 package com.neotys.supermon.datamodel;
 
 public class SuperMonStopResponse extends SupermonResponse {
+    //#TODO to store in events while waiting for better solution
+   //{
+    //   "status":"SUCCESS",
+    //   "responseCode":200,
+    //   "data":{
+    //      "instanceInformation":{
+    //         "usecaseIdentifier":"NeoLoad_Load_test",
+    //         "databaseType":"MYSQL",
+    //         "instanceName":"172.17.0.1",
+    //         "databaseName":"users_database",
+    //         "schemaName":null,
+    //         "instanceInformationDetails":{
+    //            "STATEMENTS":1009347.0,
+    //            "STATEMENT_LATENCY_IN_S":132.95,
+    //            "FILE_IO_LATENCY_IN_S":9.23,
+    //            "CURRENT_CONNECTIONS":10.0,
+    //            "DATABASE_SIZE_IN_MB":0.1,
+    //            "STATEMENT_AVG_LATENCY_IN_MS":0.13,
+    //            "FILE_IOS":21565.0,
+    //            "TABLE_SCANS":40336.0,
+    //            "UNIQUE_USERS":1.0
+    //         }
+    //      },
+    //      "data":[
+    //         {
+    //            "usecaseIdentifier":"NeoLoad_Load_test",
+    //            "idNum":16,
+    //            "startTimestamp":"2020-07-30T12:23:20.000+0000",
+    //            "endTimestamp":"2020-07-30T12:28:23.000+0000",
+    //            "valueObjects":[
+    //               {
+    //                  "fieldName":"avgTimerWait",
+    //                  "newValue":0,
+    //                  "oldValue":0,
+    //                  "deviation":0.0
+    //               },
+    //               {
+    //                  "fieldName":"execCount",
+    //                  "newValue":8577,
+    //                  "oldValue":0,
+    //                  "deviation":0.0
+    //               },
+    //               {
+    //                  "fieldName":"execTimeAvgMS",
+    //                  "newValue":0,
+    //                  "oldValue":0,
+    //                  "deviation":0.0
+    //               },
+    //               {
+    //                  "fieldName":"execTimeMax",
+    //                  "newValue":0,
+    //                  "oldValue":0,
+    //                  "deviation":0.0
+    //               },
+    //               {
+    //                  "fieldName":"execTimeTotal",
+    //                  "newValue":3,
+    //                  "oldValue":0,
+    //                  "deviation":0.0
+    //               },
+    //               {
+    //                  "fieldName":"maxTimerWait",
+    //                  "newValue":0,
+    //                  "oldValue":0,
+    //                  "deviation":0.0
+    //               },
+    //               {
+    //                  "fieldName":"minTimerWait",
+    //                  "newValue":0,
+    //                  "oldValue":0,
+    //                  "deviation":0.0
+    //               },
+    //               {
+    //                  "fieldName":"rowsSentAvg",
+    //                  "newValue":1371,
+    //                  "oldValue":0,
+    //                  "deviation":0.0
+    //               },
+    //               {
+    //                  "fieldName":"sumCreatedTmpDiskTables",
+    //                  "newValue":0,
+    //                  "oldValue":0,
+    //                  "deviation":0.0
+    //               },
+    //               {
+    //                  "fieldName":"sumCreatedTmpTables",
+    //                  "newValue":0,
+    //                  "oldValue":0,
+    //                  "deviation":0.0
+    //               },
+    //               {
+    //                  "fieldName":"sumErrors",
+    //                  "newValue":0,
+    //                  "oldValue":0,
+    //                  "deviation":0.0
+    //               },
+    //               {
+    //                  "fieldName":"sumLockTime",
+    //                  "newValue":0,
+    //                  "oldValue":0,
+    //                  "deviation":0.0
+    //               },
+    //               {
+    //                  "fieldName":"sumNoGoodIndexUsed",
+    //                  "newValue":0,
+    //                  "oldValue":0,
+    //                  "deviation":0.0
+    //               },
+    //               {
+    //                  "fieldName":"sumNoIndexUsed",
+    //                  "newValue":1478,
+    //                  "oldValue":0,
+    //                  "deviation":0.0
+    //               },
+    //               {
+    //                  "fieldName":"sumRowsAffected",
+    //                  "newValue":471,
+    //                  "oldValue":0,
+    //                  "deviation":0.0
+    //               },
+    //               {
+    //                  "fieldName":"sumRowsExamined",
+    //                  "newValue":1940982,
+    //                  "oldValue":0,
+    //                  "deviation":0.0
+    //               },
+    //               {
+    //                  "fieldName":"sumRowsSent",
+    //                  "newValue":1940204,
+    //                  "oldValue":0,
+    //                  "deviation":0.0
+    //               },
+    //               {
+    //                  "fieldName":"sumSelectFullJoin",
+    //                  "newValue":0,
+    //                  "oldValue":0,
+    //                  "deviation":0.0
+    //               },
+    //               {
+    //                  "fieldName":"sumSelectFullRangeJoin",
+    //                  "newValue":0,
+    //                  "oldValue":0,
+    //                  "deviation":0.0
+    //               },
+    //               {
+    //                  "fieldName":"sumSelectRange",
+    //                  "newValue":0,
+    //                  "oldValue":0,
+    //                  "deviation":0.0
+    //               },
+    //               {
+    //                  "fieldName":"sumSelectRangeCheck",
+    //                  "newValue":0,
+    //                  "oldValue":0,
+    //                  "deviation":0.0
+    //               },
+    //               {
+    //                  "fieldName":"sumSelectScan",
+    //                  "newValue":1478,
+    //                  "oldValue":0,
+    //                  "deviation":0.0
+    //               },
+    //               {
+    //                  "fieldName":"sumSortMergePasses",
+    //                  "newValue":0,
+    //                  "oldValue":0,
+    //                  "deviation":0.0
+    //               },
+    //               {
+    //                  "fieldName":"sumSortRange",
+    //                  "newValue":0,
+    //                  "oldValue":0,
+    //                  "deviation":0.0
+    //               },
+    //               {
+    //                  "fieldName":"sumSortRow",
+    //                  "newValue":0,
+    //                  "oldValue":0,
+    //                  "deviation":0.0
+    //               },
+    //               {
+    //                  "fieldName":"sumSortScan",
+    //                  "newValue":0,
+    //                  "oldValue":0,
+    //                  "deviation":0.0
+    //               },
+    //               {
+    //                  "fieldName":"sumTimerWait",
+    //                  "newValue":3,
+    //                  "oldValue":0,
+    //                  "deviation":0.0
+    //               },
+    //               {
+    //                  "fieldName":"sumWarnings",
+    //                  "newValue":0,
+    //                  "oldValue":0,
+    //                  "deviation":0.0
+    //               }
+    //            ]
+    //         }
+    //      ],
+    //      "applicationUrl":"http://3.1.221.225:8110/mySuperMon/report/1596112111417/index.html"
+    //   },
+    //   "errorMessage":null,
+    //   "errorCode":null
+    //}"\"}"
 
-    StartData data;
+    StopData data;
 
-    public SuperMonStopResponse(String status, Integer responseCode, StartData url, String errormessage, String errorcode) {
+
+    public SuperMonStopResponse(String status, Integer responseCode, StopData url, String errormessage, String errorcode) {
         super(status, responseCode,errormessage,errorcode);
         this.data=url;
     }
 
-    public StartData getData() {
+    public StopData getData() {
         return data;
     }
 
-    public void setData(StartData data) {
+    public void setData(StopData data) {
         this.data = data;
     }
 }
