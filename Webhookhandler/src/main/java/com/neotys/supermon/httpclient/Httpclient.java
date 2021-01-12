@@ -112,8 +112,7 @@ public class Httpclient {
         return apiOauthFuture;
     }
 
-    private boolean isAuthentificated()
-    {
+    private boolean isAuthentificated() {
         if(apiOauth==null)
             return false;
         else

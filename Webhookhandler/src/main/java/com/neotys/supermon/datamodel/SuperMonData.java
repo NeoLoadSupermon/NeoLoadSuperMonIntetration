@@ -9,38 +9,85 @@ import java.util.List;
 public class SuperMonData extends SupermonResponse{
     SuperMonRunData data;
 
-    ///{"status":"200 OK",
-    // "responseCode":200,
-    // "data":
-    //    {"usecaseIdentifier":"NeoLoad_Load_test",
-    //     "runSituationResult":
-    //           [
-    //   {"SUM_ROWS_AFFECTED":null,
-    //  "SUM_SELECT_RANGE":null,
-    //   "SUM_LOCK_TIME":null,
-    //   "SUM_SORT_ROWS":null,
-    //   "SUM_ERRORS":null,
-    //    "SUM_ROWS_SENT":null,
-    //     "SUM_SELECT_SCAN":null,
-    //    "SUM_NO_GOOD_INDEX_USED":null,
-    //    "EXEC_TIME_MAX":null,
-    //     "SUM_SORT_SCAN":null,
-    //      "SUM_SELECT_RANGE_CHECK":null,
-    //       "USECASE_IDENTIFIER":"NeoLoad_Load_test",
-    //      "SUM_TIMER_WAIT":null,
-    //     "STARTTIMESTMAP":"2020-06-12T14:21:45.000+0000",
-    //     "SCHEMA_NAME":"users_database",
-    //        "SUM_ROWS_EXAMINED":null,
-    //       "SUM_SELECT_FULL_JOIN":null,
-    //      "SUM_NO_INDEX_USED":null,
-    //    "COUNT_STAR":null,
-    //  "SUM_SELECT_FULL_RANGE_JOIN":null,
-    //  "SUM_SORT_MERGE_PASSES":null,
-    //  "SUM_SORT_RANGE":null
-    // }
-    // ]
-    // },
-    // "errorMessage":null,"errorCode":null}
+	//    {
+	//        "status": "200 OK",
+	//        "responseCode": 200,
+	//        "data": {
+    //			  "idNum": "12",
+	//            "usecaseIdentifier": "LOGIN",
+	//            "applicationId": 1,
+	//            "applicationName": "mySuperMon",
+	//            "applicationIdentifier": "48f85bf4-3ff7-42e3-b56d-e11e7dfae752",
+	//            "runSituationResult": [
+	//                {
+	//                    "dataSourceId": 2,
+	//                    "databaseName": "easypay",
+	//                    "schemaName": null,
+	//                    "hostUrl": "localhost",
+	//                    "data": {
+	//                        "SUM_ROWS_AFFECTED": 42,
+	//                        "SUM_SELECT_RANGE": 0,
+	//                        "SUM_ROWS_SENT": null,
+	//                        "SUM_SELECT_SCAN": -722,
+	//                        "APPLICATION_ID": 1,
+	//                        "SUM_NO_GOOD_INDEX_USED": 0,
+	//                        "EXEC_TIME_MAX": null,
+	//                        "SUM_SORT_SCAN": 166,
+	//                        "DATA_SOURCE_ID": 2,
+	//                        "SUM_TIMER_WAIT": -11384405281294.0000,
+	//                        "SUM_ROWS_EXAMINED": null,
+	//                        "SUM_SELECT_FULL_JOIN": 25,
+	//                        "COUNT_STAR": -595,
+	//                        "SUM_SELECT_FULL_RANGE_JOIN": 0,
+	//                        "SUM_SORT_MERGE_PASSES": 0,
+	//                        "SUM_SORT_RANGE": 0,
+	//                        "SUM_LOCK_TIME": 17677871000000.0000,
+	//                        "SUM_SORT_ROWS": 294,
+	//                        "SUM_ERRORS": 1,
+	//                        "SUM_SELECT_RANGE_CHECK": 0,
+	//                        "USECASE_IDENTIFIER": "LOGIN",
+	//                        "STARTTIMESTMAP": "2020-12-19T12:35:02.000+0000",
+	//                        "SCHEMA_NAME": "easypay",
+	//                        "SUM_NO_INDEX_USED": -894
+	//                    }
+	//                },
+	//                {
+	//                    "dataSourceId": 3,
+	//                    "databaseName": "eduvator",
+	//                    "schemaName": null,
+	//                    "hostUrl": "localhost",
+	//                    "data": {
+	//                        "SUM_ROWS_AFFECTED": -42,
+	//                        "SUM_SELECT_RANGE": 0,
+	//                        "SUM_ROWS_SENT": null,
+	//                        "SUM_SELECT_SCAN": 791,
+	//                        "APPLICATION_ID": 1,
+	//                        "SUM_NO_GOOD_INDEX_USED": 0,
+	//                        "EXEC_TIME_MAX": null,
+	//                        "SUM_SORT_SCAN": -166,
+	//                        "DATA_SOURCE_ID": 3,
+	//                        "SUM_TIMER_WAIT": 11896424723520.0000,
+	//                        "SUM_ROWS_EXAMINED": null,
+	//                        "SUM_SELECT_FULL_JOIN": -25,
+	//                        "COUNT_STAR": 664,
+	//                        "SUM_SELECT_FULL_RANGE_JOIN": 0,
+	//                        "SUM_SORT_MERGE_PASSES": 0,
+	//                        "SUM_SORT_RANGE": 0,
+	//                        "SUM_LOCK_TIME": -17671393000000.0000,
+	//                        "SUM_SORT_ROWS": -294,
+	//                        "SUM_ERRORS": -1,
+	//                        "SUM_SELECT_RANGE_CHECK": 0,
+	//                        "USECASE_IDENTIFIER": "LOGIN",
+	//                        "STARTTIMESTMAP": "2020-12-19T12:35:03.000+0000",
+	//                        "SCHEMA_NAME": "eduvator",
+	//                        "SUM_NO_INDEX_USED": 963
+	//                    }
+	//                }
+	//            ]
+	//        },
+	//        "errorMessage": null,
+	//        "errorCode": null
+	//    }
 
 
 
@@ -62,76 +109,12 @@ public class SuperMonData extends SupermonResponse{
     public List<CustomMonitor> toCustomMonitor(String databaseType, String databaseName,  NeoLoadLogger logger) {
         List<CustomMonitor> customMonitors=new ArrayList<>();
         logger.debug("Parsing the entries");
-        data.getRunIDSituationEntries().stream().forEach(suPerMonEntry -> {
+        data.runIDSituationEntries.stream().forEach(suPerMonEntry -> {
             logger.debug("parsing use case "+suPerMonEntry.getUSECASE_IDENTIFIER());
             suPerMonEntry.toCustomMonitor(customMonitors,databaseType,databaseName,logger);
         });
 
         return customMonitors;
     }
-    //{
-    //    "status": "200 OK",
-    //    "responseCode": 200,
-    //    "data": {
-    //        "usecaseIdentifier": "TEST1O",
-    //        "runSituationResult": [
-    //            {
-    //                "SUM_ROWS_AFFECTED": null,
-    //                "SUM_SELECT_RANGE": null,
-    //                "SUM_ROWS_SENT": null,
-    //                "SUM_SELECT_SCAN": null,
-    //                "SUM_NO_GOOD_INDEX_USED": null,
-    //                "EXEC_TIME_MAX": null,
-    //                "SUM_SORT_SCAN": null,
-    //                "SUM_TIMER_WAIT": null,
-    //                "SUM_ROWS_EXAMINED": null,
-    //                "SUM_SELECT_FULL_JOIN": null,
-    //                "ID": 49,
-    //                "COUNT_STAR": null,
-    //                "SUM_SELECT_FULL_RANGE_JOIN": null,
-    //                "SUM_SORT_MERGE_PASSES": null,
-    //                "SUM_SORT_RANGE": null,
-    //                "EXEC_TIME_AVG_MS": null,
-    //                "SUM_LOCK_TIME": null,
-    //                "SUM_SORT_ROWS": null,
-    //                "SUM_ERRORS": null,
-    //                "SUM_SELECT_RANGE_CHECK": null,
-    //                "USECASE_IDENTIFIER": "TEST1O",
-    //                "STARTTIMESTMAP": "2020-05-18T15:23:44.000+0000",
-    //                "SCHEMA_NAME": "wp",
-    //                "SUM_WARNINGS": null,
-    //                "SUM_NO_INDEX_USED": null,
-    //                "ID_NUM": 13
-    //            },
-    //            {
-    //                "SUM_ROWS_AFFECTED": null,
-    //                "SUM_SELECT_RANGE": null,
-    //                "SUM_ROWS_SENT": null,
-    //                "SUM_SELECT_SCAN": null,
-    //                "SUM_NO_GOOD_INDEX_USED": null,
-    //                "EXEC_TIME_MAX": null,
-    //                "SUM_SORT_SCAN": null,
-    //                "SUM_TIMER_WAIT": null,
-    //                "SUM_ROWS_EXAMINED": null,
-    //                "SUM_SELECT_FULL_JOIN": null,
-    //                "ID": 48,
-    //                "COUNT_STAR": null,
-    //                "SUM_SELECT_FULL_RANGE_JOIN": null,
-    //                "SUM_SORT_MERGE_PASSES": null,
-    //                "SUM_SORT_RANGE": null,
-    //                "EXEC_TIME_AVG_MS": null,
-    //                "SUM_LOCK_TIME": null,
-    //                "SUM_SORT_ROWS": null,
-    //                "SUM_ERRORS": null,
-    //                "SUM_SELECT_RANGE_CHECK": null,
-    //                "USECASE_IDENTIFIER": "TEST1O",
-    //                "STARTTIMESTMAP": "2020-05-18T15:21:37.000+0000",
-    //                "SCHEMA_NAME": "wp",
-    //                "SUM_WARNINGS": null,
-    //                "SUM_NO_INDEX_USED": null,
-    //                "ID_NUM": 13
-    //            }
-    //        ]
-    //    }
-    //}
+   
 }

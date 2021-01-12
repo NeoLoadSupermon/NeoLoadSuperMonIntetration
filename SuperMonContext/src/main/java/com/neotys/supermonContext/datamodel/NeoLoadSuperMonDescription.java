@@ -1,34 +1,32 @@
 package com.neotys.supermonContext.datamodel;
 
-import java.util.HashMap;
-import java.util.List;
-
 public class NeoLoadSuperMonDescription {
 
     //---------------
     /*          field description stored
     {
-     schemeID : ,
-    databaseType :
-    databaseName:
-    useCaseIdentifier:
+     	applicationIdentifier : ,
+	    useCaseIdentifier:
+	    databaseType :
+	    databaseName:
     }
     */
     //--------------
-    String schemeID;
+    String applicationIdentifier;
+    String useCaseIdentifier;
     String databaseType;
     String databaseName;
-    String useCaseIdentifier;
+    
 
     public NeoLoadSuperMonDescription(String schemeID, String databaseType, String databaseName,String usecase) {
-        this.schemeID = schemeID;
+        this.applicationIdentifier = schemeID;
         this.databaseType = databaseType;
         this.databaseName = databaseName;
         this.useCaseIdentifier=usecase;
     }
 
     public NeoLoadSuperMonDescription(String schemeID, com.google.common.base.Optional<String> databaseType, com.google.common.base.Optional<String> databaseName,String useCaseIdentifier) {
-        this.schemeID = schemeID;
+        this.applicationIdentifier = schemeID;
         if(databaseType.isPresent())
             this.databaseType=databaseType.get();
         else
@@ -40,18 +38,15 @@ public class NeoLoadSuperMonDescription {
             this.databaseName=null;
 
         this.useCaseIdentifier=useCaseIdentifier;
-
-
-
-    }
+   }
 
 
     public String getSchemeID() {
-        return schemeID;
+        return applicationIdentifier;
     }
 
     public void setSchemeID(String schemeID) {
-        this.schemeID = schemeID;
+        this.applicationIdentifier = schemeID;
     }
 
     public String getDatabaseType() {

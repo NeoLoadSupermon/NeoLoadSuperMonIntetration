@@ -2,7 +2,7 @@ package com.neotys.supermon.datamodel;
 
 public class AlertCriteriaModel {
     Integer statusId;
-    Integer datasourceId;
+    Integer applicationId;
     Integer failure;
     Integer warning;
     Integer sucess;
@@ -10,7 +10,7 @@ public class AlertCriteriaModel {
     String updatedTiemstamp;
     String updatedBy;
     //                  "statusId":10,
-    //                  "datasourceId":10,
+    //                  "applicationId":10,
     //                  "failure":-20,
     //                  "warning":0,
     //                  "success":20,
@@ -19,9 +19,9 @@ public class AlertCriteriaModel {
     //                  "updatedBy":null
 
 
-    public AlertCriteriaModel(Integer statusId, Integer datasourceId, Integer failure, Integer warning, Integer sucess, Integer improvements, String updatedTiemstamp, String updatedBy) {
+    public AlertCriteriaModel(Integer statusId, Integer applicationId, Integer failure, Integer warning, Integer sucess, Integer improvements, String updatedTiemstamp, String updatedBy) {
         this.statusId = statusId;
-        this.datasourceId = datasourceId;
+        this.applicationId = applicationId;
         this.failure = failure;
         this.warning = warning;
         this.sucess = sucess;
@@ -38,15 +38,15 @@ public class AlertCriteriaModel {
         this.statusId = statusId;
     }
 
-    public Integer getDatasourceId() {
-        return datasourceId;
-    }
+    public Integer getApplicationId() {
+		return applicationId;
+	}
 
-    public void setDatasourceId(Integer datasourceId) {
-        this.datasourceId = datasourceId;
-    }
+	public void setApplicationId(Integer applicationId) {
+		this.applicationId = applicationId;
+	}
 
-    public Integer getFailure() {
+	public Integer getFailure() {
         return failure;
     }
 

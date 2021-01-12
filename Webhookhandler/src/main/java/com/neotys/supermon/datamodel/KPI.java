@@ -1,19 +1,17 @@
 package com.neotys.supermon.datamodel;
 
 public class KPI {
-
-
     Integer newValue;
     Double deviation;
     Integer oldValue;
     String fieldName;
 
-    //                  {
-    ////    //                  "fieldName":"avgTimerWait",
-    ////    //                  "newValue":0,
-    ////    //                  "oldValue":0,
-    ////    //                  "deviation":0.0
-    ////    //               },
+	//    {
+	//        "fieldName": "rowsSentAvg",
+	//        "newValue": 125.0000,
+	//        "oldValue": 290.0000,
+	//        "deviation": 56.9
+	//    },
 
 
     public KPI(Integer newValue, Double deviation, Integer oldValue, String fieldName) {

@@ -9,9 +9,6 @@ import java.util.concurrent.TimeUnit;
 
 public class NeoLoadWebhookHandler {
 
-
-
-
         private static final int MAX=24;
         public static void main(String[] args) {
 

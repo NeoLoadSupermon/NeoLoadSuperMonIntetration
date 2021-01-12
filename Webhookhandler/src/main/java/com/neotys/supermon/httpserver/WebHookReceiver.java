@@ -1,11 +1,20 @@
 package com.neotys.supermon.httpserver;
 
-import com.google.gson.JsonSyntaxException;
+import static com.neotys.supermon.conf.Constants.HEALTH_PATH;
+import static com.neotys.supermon.conf.Constants.HTTP_PORT;
+import static com.neotys.supermon.conf.Constants.SECRET_PORT;
+import static com.neotys.supermon.conf.Constants.TESTID_KEY;
+import static com.neotys.supermon.conf.Constants.WEBHOOKENDPATH;
+import static com.neotys.supermon.conf.Constants.WEBHOOKPATH;
 
+import java.util.HashMap;
+
+import com.google.gson.JsonSyntaxException;
 import com.neotys.ascode.swagger.client.ApiException;
 import com.neotys.supermon.Logger.NeoLoadLogger;
 import com.neotys.supermon.common.NeoLoadException;
 import com.neotys.supermon.httpresult.NeoLoadHttpHandler;
+
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
@@ -15,12 +24,7 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import rx.Scheduler;
-import rx.Subscription;
 import rx.schedulers.Schedulers;
-
-import java.util.HashMap;
-
-import static com.neotys.supermon.conf.Constants.*;
 
 
 public class WebHookReceiver extends AbstractVerticle {
@@ -38,21 +42,14 @@ public class WebHookReceiver extends AbstractVerticle {
         router.post(WEBHOOKENDPATH).handler(this::postEndWebHook);
         router.get(HEALTH_PATH).handler(this::getHealth);
         String port=System.getenv(SECRET_PORT);
-        if(port==null)
-        {
-            httpPort=HTTP_PORT;
-        }
-        else
-        {
-            httpPort=Integer.parseInt(port);
-        }
+        httpPort = port ==null ? HTTP_PORT : Integer.parseInt(port);
         server = vertx.createHttpServer();
-
         server.requestHandler(router::accept);
         server.listen(httpPort);
     }
-
-    private void postEndWebHook(RoutingContext routingContext) {
+    
+    @SuppressWarnings("deprecation")
+	private void postEndWebHook(RoutingContext routingContext) {
 
         if(routingContext.getBody()==null) {
             loadLogger.error("Technical error - there is no payload" );
@@ -60,13 +57,11 @@ public class WebHookReceiver extends AbstractVerticle {
             return;
         }
         JsonObject body=routingContext.getBodyAsJson();
-        if(body.containsKey(TESTID_KEY))
-        {
+        if(body.containsKey(TESTID_KEY)) {
             String testid=body.getString(TESTID_KEY);
 
             //----is test id currently processed?-----
-            if(neoLoadHttpHandlerHashMap.containsKey(testid))
-            {
+            if(neoLoadHttpHandlerHashMap.containsKey(testid)) {
                 loadLogger.setTestid(testid);
                 loadLogger.debug("Received stop Webhook with testid  " + testid);
                 try {
@@ -81,7 +76,6 @@ public class WebHookReceiver extends AbstractVerticle {
                         else {
                             loadLogger.error("Stop recording has failed ",stringAsyncResult.cause());
                             routingContext.response().setStatusCode(500).end(" Stop recording has Failed ");
-
                         }
                     });
                 }
@@ -111,22 +105,17 @@ public class WebHookReceiver extends AbstractVerticle {
 
     private void handleWebHookStart(final String testid) throws NeoLoadException, ApiException,JsonSyntaxException {
 
-        if(neoLoadHttpHandlerHashMap.containsKey(testid))
-        {
+        if(neoLoadHttpHandlerHashMap.containsKey(testid)) {
            loadLogger.info("This testid Has alreday been processed to start");
-        }
-        else {
-
+        } else {
                 Scheduler scheduler = Schedulers.newThread();
                 Scheduler.Worker worker = scheduler.createWorker();
                 NeoLoadHttpHandler neoLoadHttpHandler=new NeoLoadHttpHandler(testid);
-                Future<Boolean> future=neoLoadHttpHandler.start(vertx,worker);
+                Future<Boolean> future = neoLoadHttpHandler.start(vertx,worker);
                 future.setHandler(asyncResult -> {
-                    if(asyncResult.succeeded())
-                    {
+                    if(asyncResult.succeeded()) {
                         neoLoadHttpHandlerHashMap.put(testid,neoLoadHttpHandler);
                     }
-
                 });
 
             }
@@ -138,9 +127,8 @@ public class WebHookReceiver extends AbstractVerticle {
             routingContext.response().setStatusCode(500).end("Technical error - there is no payload");
             return;
         }
-        JsonObject body=routingContext.getBodyAsJson();
-        if(body.containsKey(TESTID_KEY))
-        {
+        JsonObject body = routingContext.getBodyAsJson();
+        if(body.containsKey(TESTID_KEY)) {
             String testid=body.getString(TESTID_KEY);
 
             //----is test id currently processed?-----

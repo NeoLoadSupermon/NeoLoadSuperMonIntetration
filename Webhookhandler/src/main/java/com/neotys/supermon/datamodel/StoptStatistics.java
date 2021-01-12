@@ -1,7 +1,5 @@
 package com.neotys.supermon.datamodel;
 
-;
-
 import java.util.ArrayList;
 import java.util.List;
 

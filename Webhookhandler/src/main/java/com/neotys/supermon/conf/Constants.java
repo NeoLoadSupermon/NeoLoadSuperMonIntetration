@@ -23,10 +23,10 @@ public class Constants {
     public static final int SHEDULER_START=1;
     public static final int SHEDULER_PERIOD=5;
 
-    public static final String SECRET_CLOUD_PORT="SupermonPort";
-    public static final String SECRET_CLOUD_HOST="SupermonAPIHostname";
-    public static final String SECRET_CLOUD_API_PATH="SupermonAPIPath";
-    public static final String SECRET_CLOUD_WEBHOST="SupermonWebHostname";
+    public static final String SECRET_CLOUD_PORT="mySuperMonPort";
+    public static final String SECRET_CLOUD_HOST="mySuperMonAPIHostname";
+    public static final String SECRET_CLOUD_API_PATH="mySuperMonAPIPath";
+    public static final String SECRET_CLOUD_WEBHOST="mySuperMonWebHostname";
     public static final String SECRET_USERNAME="user";
     public static final String SECRET_PASSWORD="password";
     public static final String SECRET_CLIENTID="client_id";
@@ -36,9 +36,9 @@ public class Constants {
     public static final String DEFAULT_MANAGED_PORT="80";
     public static final String NEOLOAD="neoload";
 
-    public static final String SUPERMON_STATUS_SUCESS="SUCCESS";
-    public static final String SUPERMON_RUN_STATUS_SUCESS="200 OK";
-    public static final Integer SUPERMON_CODE_SUCESS=new Integer(200);
+    public static final String MYSUPERMON_STATUS_SUCESS="SUCCESS";
+    public static final String MYSUPERMON_RUN_STATUS_SUCESS="200 OK";
+    public static final Integer MYSUPERMON_CODE_SUCESS=new Integer(200);
 
     public static final String SECRET_CLOUD_OAUT_TOKEN_PATH="SUPERMON_OAUTH_PATH";
 
@@ -47,13 +47,13 @@ public class Constants {
     public static final String NEOLAOD_WEB_LASTPART_URL="/overview";
 
     //-----url path to interact with SUPERMON----$
-    public static final String SUPERMON_API_PATH="/devaten/data/operation";
-    public static final String SUPERMON_OPERATION_STARTRECORDING="start";
-    public static final String SUPERMON_OPERATION_STOPRECORDING="stop";
-    public static final String SUPERMON_OPERATION_RUN="run";
+    public static final String MYSUPERMON_API_PATH="/devaten/data/operation";
+    public static final String MYSUPERMON_OPERATION_STARTRECORDING="start";
+    public static final String MYSUPERMON_OPERATION_STOPRECORDING="stop";
+    public static final String MYSUPERMON_OPERATION_RUN="run";
     public static final String GET_OPERATION="action";
     public static final String GET_IDETIFIER="usecaseIdentifier";
-    public static final String HEADER_SCHEME="schemaId";
+    public static final String HEADER_SCHEME="applicationIdentifier";
 
     public static final String OAUT_TOKEN="access_token";
     public static final String OAUT_EXPIRES="expires_at";

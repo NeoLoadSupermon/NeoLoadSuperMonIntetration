@@ -55,7 +55,7 @@ public class OauthTesting {
         Gson gson = new GsonBuilder().registerTypeAdapterFactory(new GsonJava8TypeAdapterFactory()).create();
 
         SupermonStartResponse supermonStartResponse=gson.fromJson(response, SupermonStartResponse.class);
-        System.out.println(supermonStartResponse.getData().getInstanceInformation().getDatabaseType());
+        //System.out.println(supermonStartResponse.getData().getInstanceInformation().getDatabaseType());
     }
 
     @Test

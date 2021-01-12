@@ -1,38 +1,63 @@
 package com.neotys.supermon.datamodel;
 
 public class SupermonResponse {
-    //
-    // {"status":"SUCCESS",
-    // "responseCode":200,
-    // "data":
-    //    {
-    //    "instanceInformation":
-    //       {
-    //          "usecaseIdentifier":"NeoLoad_Load_test",
-    //          "databaseType":"MYSQL",
-    //           "instanceName":"172.17.0.1",
-    //           "databaseName":"users_database",
-    //           "schemaName":null,
-    //            "instanceInformationDetails":
-    //             {
-    //                 "TOTAL_MEMORY_ALLOCATED_IN_MB":0.0,
-    //                 "STATEMENTS":9575.0,
-    //                 "STATEMENT_LATENCY_IN_S":3.67,
-    //                 "FILE_IO_LATENCY_IN_S":1.78,
-    //                 "CURRENT_CONNECTIONS":20.0,
-    //                 "DATABASE_SIZE_IN_MB":0.0,
-    //                 "STATEMENT_AVG_LATENCY_IN_MS":0.38,
-    //                 "FILE_IOS":3971.0,
-    //                  "TOTAL_CONNECTIONS":1286.0,
-    //                   "TABLE_SCANS":208.0,
-    //                   "CURRENT_MEMORY_IN_MB":0.0,
-    //                  "UNIQUE_USERS":1.0
-    //             }
-    //        },
-    //         "data":true,
-    //          "applicationUrl":"http://3.1.221.225:8110/mySuperMon/"
-    // },
-    // "errorMessage":null,"errorCode":null}"}
+	//	{
+	//	    "status": "SUCCESS",
+	//	    "responseCode": 200,
+	//	    "data": {
+	//	        "idNum": 22,
+	//	        "usecaseIdentifier": "LOGIN",
+	//	        "applicationId": 1,
+	//	        "applicationName": "mySuperMon",
+	//	        "applicationIdentifier": "48f85bf4-3ff7-42e3-b56d-e11e7dfae752",
+	//	        "dataSourceDTO": [
+	//	            {
+	//	                "dataSourceId": 2,
+	//	                "databaseName": "easypay",
+	//	                "schemaName": "easypay",
+	//	                "hostUrl": "localhost",
+	//	                "instanceInformation": {
+	//	                    "STATEMENTS": 221160.0,
+	//	                    "STATEMENT_LATENCY_IN_S": 2153.86,
+	//	                    "FILE_IO_LATENCY_IN_S": 1540.15,
+	//	                    "CURRENT_CONNECTIONS": 14.0,
+	//	                    "DATABASE_SIZE_IN_MB": 0.1,
+	//	                    "STATEMENT_AVG_LATENCY_IN_MS": 9.74,
+	//	                    "APPLICATION_ID": 1.0,
+	//	                    "FILE_IOS": 305867.0,
+	//	                    "TABLE_SCANS": 35670.0,
+	//	                    "DATA_SOURCE_ID": 2.0,
+	//	                    "USECASE_IDENTIFIER": 0.0,
+	//	                    "UNIQUE_USERS": 1.0
+	//	                },
+	//	                "dataList": null
+	//	            },
+	//	            {
+	//	                "dataSourceId": 3,
+	//	                "databaseName": "eduvator",
+	//	                "schemaName": "eduvator",
+	//	                "hostUrl": "localhost",
+	//	                "instanceInformation": {
+	//	                    "STATEMENTS": 221160.0,
+	//	                    "STATEMENT_LATENCY_IN_S": 2153.86,
+	//	                    "FILE_IO_LATENCY_IN_S": 1540.15,
+	//	                    "CURRENT_CONNECTIONS": 14.0,
+	//	                    "DATABASE_SIZE_IN_MB": 0.1,
+	//	                    "STATEMENT_AVG_LATENCY_IN_MS": 9.74,
+	//	                    "APPLICATION_ID": 1.0,
+	//	                    "FILE_IOS": 305867.0,
+	//	                    "TABLE_SCANS": 35670.0,
+	//	                    "DATA_SOURCE_ID": 2.0,
+	//	                    "USECASE_IDENTIFIER": 0.0,
+	//	                    "UNIQUE_USERS": 1.0
+	//	                },
+	//	                "dataList": null
+	//	            }
+	//	        ]
+	//	    },
+	//	    "errorMessage": null,
+	//	    "errorCode": null
+	//	}
     String status;
     Integer responseCode;
     String errorMessage;

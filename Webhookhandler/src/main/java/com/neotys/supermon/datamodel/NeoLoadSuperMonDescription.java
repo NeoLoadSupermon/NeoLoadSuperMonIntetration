@@ -1,46 +1,42 @@
 package com.neotys.supermon.datamodel;
 
-import java.util.HashMap;
-import java.util.List;
-
-
 public class NeoLoadSuperMonDescription {
 
     //---------------
-    /*          field description stored
+    /* field description stored
 
-    {"schemeID":"MYSQL_mysql_agent_7491","databaseType":"Mysql","useCaseIdentifier":"NeoLoad_Load_test"}
+    {"applicationIdentifier":"48f85bf4-3ff7-42e3-b56d-e11e7dfae752","databaseType":"Mysql","useCaseIdentifier":"NeoLoad_Load_test"}
     {
-     schemeID : ,
-    databaseType :
-    databaseName:
-    useCaseIdentifier:
+     	applicationIdentifier : ,
+	    databaseType :
+	    databaseName:
+	    useCaseIdentifier:
     }
     */
     //--------------
-    String schemeID;
+    String applicationIdentifier;
     String databaseType;
     String databaseName;
     String useCaseIdentifier;
 
     public NeoLoadSuperMonDescription(String schemeID, String databaseType, String databaseName,String usecase) {
-        this.schemeID = schemeID;
+        this.applicationIdentifier = schemeID;
         this.databaseType = databaseType;
         this.databaseName = databaseName;
-        this.useCaseIdentifier=usecase;
+        this.useCaseIdentifier = usecase;
     }
 
-    public NeoLoadSuperMonDescription(String schemeID, com.google.common.base.Optional<String> databaseType, com.google.common.base.Optional<String> databaseName,String useCaseIdentifier) {
-        this.schemeID = schemeID;
+    public NeoLoadSuperMonDescription(String applicationIdentifier, com.google.common.base.Optional<String> databaseType, com.google.common.base.Optional<String> databaseName,String useCaseIdentifier) {
+        this.applicationIdentifier = applicationIdentifier;
         if(databaseType.isPresent())
-            this.databaseType=databaseType.get();
+            this.databaseType = databaseType.get();
         else
-            this.databaseType=null;
+            this.databaseType = null;
 
         if(databaseName.isPresent())
-            this.databaseName=databaseName.get();
+            this.databaseName = databaseName.get();
         else
-            this.databaseName=null;
+            this.databaseName = null;
 
         this.useCaseIdentifier=useCaseIdentifier;
 
@@ -49,12 +45,12 @@ public class NeoLoadSuperMonDescription {
     }
 
 
-    public String getSchemeID() {
-        return schemeID;
+    public String getApplicationIdentifier() {
+        return applicationIdentifier;
     }
 
-    public void setSchemeID(String schemeID) {
-        this.schemeID = schemeID;
+    public void setApplicationIdentifier(String applicationIdentifier) {
+        this.applicationIdentifier = applicationIdentifier;
     }
 
     public String getDatabaseType() {
