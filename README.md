@@ -8,8 +8,6 @@ This project has 2 disctinct components :
 ## SupermonContext
 This custom action will allow you to add all the project information required in XRAY :
    * `schemeID` (Required) : Scheme id of the database monitored by Supermon
-   * `databaseType` (Optional): Type of database ( mysql,oracle...Etc)
-   * `databaseName` (Optional) : Name of the database
    * `useCaseIdentifier` (Required) : Name of the test
 
 DatabaseType and databaseName will structure the data collected from Supermon in NeoLoad WEB
@@ -22,7 +20,7 @@ SupermonContext will update the test results in NeoLoad web with all the informa
 | Maturity | Experimental |
 | Author   | Neotys Partner Team |
 | License  | [BSD Simplified](https://www.neotys.com/documents/legal/bsd-neotys.txt) |
-| NeoLoad  | 7.0 (Enterprise or Professional Edition w/ Integration & Advanced Usage and NeoLoad Web option required)|
+| NeoLoad  | 7.6 (Enterprise or Professional Edition w/ Integration & Advanced Usage and NeoLoad Web option required)|
 | Requirements | NeoLoad Web |
 | Bundled in NeoLoad | No
 | Download Binaries | <ul><li>[latest release]() is only compatible with NeoLoad from version 7.0</li><li> Use this [release](https://github.com/Neotys-Labs/Dynatrace/releases/tag/Neotys-Labs%2FDynatrace.git-2.0.10) for previous NeoLoad versions</li></ul>|
@@ -58,8 +56,6 @@ The SuperMonContext Population would need to be added to your NeoLoad scenario w
 | Name             | Description |
 | -----            | ----- |
 | `schemeID`      | Scheme id of the database monitored by Supermon |
-| `databaseType`  (Optional) |   Type of database ( mysql,oracle...Etc)|
-| `databaseName` (Optional)  |  Name of the database |
 | `useCaseIdentifier`  |  Name of the test |
 
 
@@ -112,7 +108,8 @@ The webhookhandler service is listenning to 2 disctinct endpoints :
 The Webhookhandler is expecting the following Json Payload for:
 ```json
 {
-	"testid" : "TESTID"
+	"testid" : "TESTID",
+	"workspaceid" : "WORKSPACEID"
 }
 ```
 
@@ -126,7 +123,8 @@ To configure the webhook in NeoLoad WEB you will need to :
 7. Payload :
 ```json
 {
-            "testid": "$(test_result_id)"
+            "testid": "$(test_result_id)",
+            "workspaceid" : "$(workspace_id)"
 }
 ```
 
@@ -138,7 +136,8 @@ To configure the webhook in NeoLoad WEB you will need to :
 11. Payload :
 ```json
 {
-            "testid": "$(test_result_id)"
+            "testid": "$(test_result_id)",
+            "workspaceid" : "$(workspace_id)"
 }
 ```
 
