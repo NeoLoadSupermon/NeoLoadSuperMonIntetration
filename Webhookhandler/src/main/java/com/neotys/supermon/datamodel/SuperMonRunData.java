@@ -4,18 +4,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SuperMonRunData {
+
+
 	private long idNum;
     private String usecaseIdentifier;
     private long applicationId;
     private String applicationName;
     private String applicationIdentifier;
-    
-    List<DataSourceData> runSituationResult;
-    List<SuPerMonEntry> runIDSituationEntries = new ArrayList<>();
+
+    List<SituationResult> runSituationResult=new ArrayList<>();
+
+
     
 	public SuperMonRunData(long idNum, String usecaseIdentifier, long applicationId, String applicationName,
-			String applicationIdentifier, List<DataSourceData> runSituationResult,
-			List<SuPerMonEntry> runIDSituationEntries) {
+			String applicationIdentifier, List<SituationResult> runSituationResult) {
 		super();
 		this.idNum = idNum;
 		this.usecaseIdentifier = usecaseIdentifier;
@@ -23,16 +25,10 @@ public class SuperMonRunData {
 		this.applicationName = applicationName;
 		this.applicationIdentifier = applicationIdentifier;
 		this.runSituationResult = runSituationResult;
-		this.runIDSituationEntries = runIDSituationEntries;
+
 	}
 	
-    public void convertToSuperMonEntry() {
-        this.runIDSituationEntries=new ArrayList<>();
-        runSituationResult.stream().forEach(stringObjectMap -> {
-            if(stringObjectMap!=null)
-                runIDSituationEntries.add(new SuPerMonEntry(stringObjectMap.getData()));
-        });
-    }
+
 	
 	public long getIdNum() {
 		return idNum;
@@ -64,17 +60,12 @@ public class SuperMonRunData {
 	public void setApplicationIdentifier(String applicationIdentifier) {
 		this.applicationIdentifier = applicationIdentifier;
 	}
-	public List<DataSourceData> getRunSituationResult() {
+
+	public List<SituationResult> getRunSituationResult() {
 		return runSituationResult;
 	}
-	public void setRunSituationResult(List<DataSourceData> runSituationResult) {
+
+	public void setRunSituationResult(List<SituationResult> runSituationResult) {
 		this.runSituationResult = runSituationResult;
 	}
-	public List<SuPerMonEntry> getRunIDSituationEntries() {
-		return runIDSituationEntries;
-	}
-	public void setRunIDSituationEntries(List<SuPerMonEntry> runIDSituationEntries) {
-		this.runIDSituationEntries = runIDSituationEntries;
-	}
-    
 }

@@ -3,17 +3,18 @@ package com.neotys.supermon.httpresult;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
-import com.neotys.ascode.swagger.client.ApiClient;
-import com.neotys.ascode.swagger.client.ApiException;
-import com.neotys.ascode.swagger.client.api.ResultsApi;
-import com.neotys.ascode.swagger.client.model.*;
+
+import com.neotys.ascode.api.v3.client.ApiClient;
+import com.neotys.ascode.api.v3.client.ApiException;
+import com.neotys.ascode.api.v3.client.api.ResultsApi;
+import com.neotys.ascode.api.v3.client.model.CustomMonitor;
+import com.neotys.ascode.api.v3.client.model.MonitorPostRequest;
+import com.neotys.ascode.api.v3.client.model.TestResultDefinition;
+import com.neotys.ascode.api.v3.client.model.TestResultUpdateRequest;
 import com.neotys.supermon.Logger.NeoLoadLogger;
 import com.neotys.supermon.common.NeoLoadException;
 import com.neotys.supermon.conf.Constants.*;
-import com.neotys.supermon.datamodel.NeoLoadSuperMonDescription;
-import com.neotys.supermon.datamodel.SuperMonData;
-import com.neotys.supermon.datamodel.SuperMonStopResponse;
-import com.neotys.supermon.datamodel.SupermonStartResponse;
+import com.neotys.supermon.datamodel.*;
 import com.neotys.supermon.httpclient.Credentials;
 import com.neotys.supermon.httpclient.Httpclient;
 import io.vertx.core.Future;
@@ -25,6 +26,7 @@ import rx.Scheduler;
 import rx.Single;
 import rx.Subscription;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -53,17 +55,19 @@ public class NeoLoadHttpHandler {
     private boolean ssl;
     private String applicationIdentifier;
     private String usecase;
-    private String databaseType;
-    private String databaseName;
+    private List<DatabaseEntity> databaseEntityList;
     private Subscription subscription;
+    private String worspaceid;
 
-    public NeoLoadHttpHandler(String testid ) throws NeoLoadException {
+    public NeoLoadHttpHandler(String testid,String workspaceid ) throws NeoLoadException {
         this.testid=testid;
         logger=new NeoLoadLogger(this.getClass().getName());
         logger.setTestid(testid);
+        this.worspaceid=workspaceid;
         getEnvVariables();
         generateApiUrl();
 
+        databaseEntityList=new ArrayList<>();
         apiClient=new ApiClient();
         apiClient.setBasePath(HTTPS+neoload_API_Url.get());
         apiClient.setApiKey(neoload_API_key);
@@ -76,7 +80,9 @@ public class NeoLoadHttpHandler {
             if(description.isEmpty()||description.trim().isEmpty()) {
                 logger.debug("Description is currently empty--let's wait");
                 Thread.sleep(2000);
-                description=resultsApi.getTest(testid).getDescription();
+
+
+                description=resultsApi.getTestResult(testid,worspaceid).getDescription();
                 logger.debug("descritpion retrieved "+ description);
             }
 
@@ -116,11 +122,12 @@ public class NeoLoadHttpHandler {
                     logger.debug("status "+superMonStopResponse.getStatus()+ " code "+ superMonStopResponse.getResponseCode());
                     if (superMonStopResponse.getStatus().equalsIgnoreCase(MYSUPERMON_STATUS_SUCESS) && superMonStopResponse.getResponseCode().intValue() == MYSUPERMON_CODE_SUCESS.intValue()) {
                         //logger.debug("Stop done with sucess "+superMonStopResponse.getData().getInstanceInformation().getUsecaseIdentifier());
-                        TestUpdateRequest updateRequest = new TestUpdateRequest();
+                        TestResultUpdateRequest updateRequest = new TestResultUpdateRequest();
                         updateRequest.description("SupmerMon Dashboard : " + superMonStopResponse.getData().getApplicationUrl());
                         logger.debug("URL to reach dashboard : "+updateRequest.getDescription());
                         try {
-                            resultsApi.updateTest(updateRequest, testid);
+
+                            resultsApi.updateTestResult(updateRequest, worspaceid,testid);
                             futureresult.complete(superMonStopResponse.getData().getApplicationUrl());
                         } catch (ApiException e) {
                             logger.error("API Exeption "+e.getResponseBody(),e);
@@ -160,7 +167,7 @@ public class NeoLoadHttpHandler {
                     Gson gson = new GsonBuilder().registerTypeAdapterFactory(new GsonJava8TypeAdapterFactory()).create();
                     SuperMonData superMonData=gson.fromJson(jsonObjectAsyncResult.result().toString(), SuperMonData.class);
                     if(superMonData!=null) {
-                        superMonData.getData().convertToSuperMonEntry();
+
                         logger.debug("Data received from use case "+ superMonData.getData().getUsecaseIdentifier());
                         logger.debug("status "+superMonData.getStatus()+ " code "+ superMonData.getResponseCode());
 
@@ -168,12 +175,12 @@ public class NeoLoadHttpHandler {
                             logger.info("Monitoring data collected, sending it nl wb");
                             //-----convert to nl metrics
                             MonitorPostRequest monitorPostRequest = new MonitorPostRequest();
-                            List<CustomMonitor> customMonitorList =superMonData.toCustomMonitor(databaseType, databaseName,logger);
+                            List<CustomMonitor> customMonitorList =superMonData.toCustomMonitor(logger);
                             try {
                                 if(customMonitorList.size()>0) {
                                     monitorPostRequest.monitors(customMonitorList);
                                     logger.debug("Monitoring sent to NeoLoad WEB");
-                                    resultsApi.postTestMonitors(monitorPostRequest, testid);
+                                    resultsApi.postTestResultMonitors(monitorPostRequest, worspaceid,testid);
                                 } else {
                                     logger.debug("Monitoring data list is empty");
                                 }
@@ -202,7 +209,8 @@ public class NeoLoadHttpHandler {
     public Future<Boolean> start(Vertx vertx, Scheduler.Worker worker) throws ApiException,JsonSyntaxException {
         Future<Boolean> booleanFuture = Future.future();
         try {
-            TestDefinition testDefinition = resultsApi.getTest(testid);
+
+            TestResultDefinition testDefinition = resultsApi.getTestResult(worspaceid,testid);
             logger.info("Getting description from testid " + testid);
             if(testDefinition != null) {
                 NeoLoadSuperMonDescription description = getSuperMonDescriptionFromTest(testDefinition.getDescription());
@@ -210,8 +218,7 @@ public class NeoLoadHttpHandler {
                     logger.debug("description retrived " + description.getApplicationIdentifier() + " with usecase " + description.getUseCaseIdentifier());
                     this.applicationIdentifier = description.getApplicationIdentifier();
                     this.usecase = description.getUseCaseIdentifier();
-                    this.databaseName = description.getDatabaseName();
-                    this.databaseType = description.getDatabaseType();
+
                     Future<String> stringFuture = startRecording(vertx, description.getApplicationIdentifier(), description.getUseCaseIdentifier());
                     stringFuture.setHandler(stringAsyncResult -> {
                         if (stringAsyncResult.succeeded()) {
@@ -268,10 +275,13 @@ public class NeoLoadHttpHandler {
                 if(supermonStartResponse !=null) {
                     logger.debug(supermonStartResponse.getStatus() + " status of the respose " + supermonStartResponse.getResponseCode() + " " + supermonStartResponse.getData().getApplicationName());
                     if (supermonStartResponse.getStatus().equalsIgnoreCase(MYSUPERMON_STATUS_SUCESS) && supermonStartResponse.getResponseCode().intValue() == MYSUPERMON_CODE_SUCESS.intValue()) {
-                        // TODO: Pravin - Will need to handle multiple data sources 
-                    	// databaseType = supermonStartResponse.getData().getInstanceInformation().getDatabaseType();
-                        // databaseName = supermonStartResponse.getData().getInstanceInformation().getDatabaseName();
-                        logger.debug("Foud "+databaseName+" of "+databaseType);
+                         supermonStartResponse.getData().getDataSourceList().stream().forEach(dataSourceData ->
+                         {
+                             DatabaseEntity databaseEntity=new DatabaseEntity(dataSourceData.getDatabaseName(),dataSourceData.getDatabaseType(),dataSourceData.getSchemaName(),dataSourceData.getHostUrl());
+                             databaseEntityList.add(databaseEntity);
+                             logger.debug("Foud "+databaseEntity.getDatabasename()+" of "+databaseEntity.getDatabaseType());
+                         });
+
                         futureresult.complete(MYSUPERMON_STATUS_SUCESS);
                     } else {
                         if (supermonStartResponse.getErrorCode() != null && supermonStartResponse.getErrorMessage() != null)
@@ -294,7 +304,7 @@ public class NeoLoadHttpHandler {
     private String getTestDescription() throws ApiException {
         String description;
         logger.debug("getting the description of the test");
-        TestDefinition definition=resultsApi.getTest(testid);
+        TestResultDefinition definition=resultsApi.getTestResult(worspaceid,testid);
 
         if(definition!=null) {
             if(!definition.getDescription().isEmpty()) {

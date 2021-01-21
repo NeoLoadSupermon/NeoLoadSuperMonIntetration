@@ -46,8 +46,9 @@ public class DataSourceData {
 	private String hostUrl;
 	private Map<String, Object> data;
 	private List<KPI> valueObjectList;
-	
-	public DataSourceData(long dataSourceId, String databaseName, String schemaName, String hostUrl,
+	private String databaseType;
+
+	public DataSourceData(long dataSourceId, String databaseName, String schemaName, String hostUrl,String databaseType,
 			Map<String, Object> data, List<KPI> valueObjectList) {
 		super();
 		this.dataSourceId = dataSourceId;
@@ -55,6 +56,7 @@ public class DataSourceData {
 		this.schemaName = schemaName;
 		this.hostUrl = hostUrl;
 		this.data = data;
+		this.databaseType=databaseType;
 		this.valueObjectList = valueObjectList;
 	}
 	public long getDataSourceId() {
@@ -92,6 +94,14 @@ public class DataSourceData {
 	}
 	public void setValueObjectList(List<KPI> valueObjectList) {
 		this.valueObjectList = valueObjectList;
+	}
+
+	public String getDatabaseType() {
+		return databaseType;
+	}
+
+	public void setDatabaseType(String databaseType) {
+		this.databaseType = databaseType;
 	}
 }
 

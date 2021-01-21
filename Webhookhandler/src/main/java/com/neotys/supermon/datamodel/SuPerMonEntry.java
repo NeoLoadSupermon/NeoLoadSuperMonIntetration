@@ -1,8 +1,9 @@
 package com.neotys.supermon.datamodel;
 
-import com.neotys.ascode.swagger.client.model.CustomMonitor;
-import com.neotys.ascode.swagger.client.model.CustomMonitorValues;
-import com.neotys.ascode.swagger.client.model.CustomMonitorValuesInner;
+
+import com.neotys.ascode.api.v3.client.model.CustomMonitor;
+import com.neotys.ascode.api.v3.client.model.CustomMonitorValues;
+import com.neotys.ascode.api.v3.client.model.CustomMonitorValuesInner;
 import com.neotys.supermon.Logger.NeoLoadLogger;
 
 import java.text.DateFormat;
@@ -15,6 +16,38 @@ import static com.neotys.supermon.conf.Constants.DATABASE;
 import static com.neotys.supermon.conf.Constants.SUPERMON;
 
 public class SuPerMonEntry {
+
+    //{
+    //	//                    "dataSourceId": 2,
+    //	//                    "databaseName": "easypay",
+    //	//                    "schemaName": null,
+    //	//                    "hostUrl": "localhost",
+    //	//                    "data": {
+    //	//                        "SUM_ROWS_AFFECTED": 42,
+    //	//                        "SUM_SELECT_RANGE": 0,
+    //	//                        "SUM_ROWS_SENT": null,
+    //	//                        "SUM_SELECT_SCAN": -722,
+    //	//                        "APPLICATION_ID": 1,
+    //	//                        "SUM_NO_GOOD_INDEX_USED": 0,
+    //	//                        "EXEC_TIME_MAX": null,
+    //	//                        "SUM_SORT_SCAN": 166,
+    //	//                        "DATA_SOURCE_ID": 2,
+    //	//                        "SUM_TIMER_WAIT": -11384405281294.0000,
+    //	//                        "SUM_ROWS_EXAMINED": null,
+    //	//                        "SUM_SELECT_FULL_JOIN": 25,
+    //	//                        "COUNT_STAR": -595,
+    //	//                        "SUM_SELECT_FULL_RANGE_JOIN": 0,
+    //	//                        "SUM_SORT_MERGE_PASSES": 0,
+    //	//                        "SUM_SORT_RANGE": 0,
+    //	//                        "SUM_LOCK_TIME": 17677871000000.0000,
+    //	//                        "SUM_SORT_ROWS": 294,
+    //	//                        "SUM_ERRORS": 1,
+    //	//                        "SUM_SELECT_RANGE_CHECK": 0,
+    //	//                        "USECASE_IDENTIFIER": "LOGIN",
+    //	//                        "STARTTIMESTMAP": "2020-12-19T12:35:02.000+0000",
+    //	//                        "SCHEMA_NAME": "easypay",
+    //	//                        "SUM_NO_INDEX_USED": -894
+    //	//                    }
     String STARTTIMESTMAP;
     Map<String,String> MapwString;
     Map<String,Double>  MapWDouble;
@@ -132,7 +165,7 @@ public class SuPerMonEntry {
         MapWDouble = mapWDouble;
     }
 
-    public void toCustomMonitor(List<CustomMonitor> customMonitors, String databaseType, String databaseName,  NeoLoadLogger logger)
+    public void toCustomMonitor(List<CustomMonitor> customMonitors, String databaseType, String databaseName, NeoLoadLogger logger)
     {
 
         List<String> path = new ArrayList<>();

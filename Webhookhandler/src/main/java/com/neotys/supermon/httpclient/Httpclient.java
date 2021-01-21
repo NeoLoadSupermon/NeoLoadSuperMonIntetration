@@ -170,11 +170,7 @@ public class Httpclient {
         logger.debug("Sending get request to "+ uri +" servhost "+serverhost +" port "+ serverport  );
         HttpRequest<Buffer> request = client.get(Integer.parseInt(serverport),serverhost,uri);
 
-        MultiMap header=((HttpRequest) request).headers();
-        headers.forEach((s, s2) -> {
-            logger.debug("adding header "+s+" value "+s2);
-            header.add(s,s2);
-        });
+        ;
 
 
         if(queryParams!=null)
@@ -185,14 +181,20 @@ public class Httpclient {
                 logger.debug(" parametere "+s+" value "+s2);
             });
         }
+        if(headers!=null) {
+            MultiMap header = ((HttpRequest) request).headers();
+            headers.forEach((s, s2) -> {
+                logger.debug("adding header " + s + " value " + s2);
+                header.add(s, s2);
+            });
+            header.forEach(stringStringEntry -> {
+                logger.debug("Hader " + stringStringEntry.getKey() + " value " + stringStringEntry.getValue());
+            });
+            request.putHeaders(header);
+        }
 
-        header.forEach(stringStringEntry -> {
 
-            logger.debug("Hader "+ stringStringEntry.getKey()+" value "+ stringStringEntry.getValue());
-        });
-
-        request.putHeaders(header)
-                .send(handler->{
+                request.send(handler->{
                     if(handler.succeeded())
                     {
                         if(handler.result().statusCode()>=200 && handler.result().statusCode()<400) {
@@ -212,6 +214,7 @@ public class Httpclient {
                     {
                         logger.error("Issue to get response ");
                         if(handler.result()!=null) {
+
                             logger.error("Response code :" + handler.result().statusCode() + " and response  " + handler.result().bodyAsString());
                             future.fail("Response code :" + handler.result().statusCode() + " and response  " + handler.result().bodyAsString());
 

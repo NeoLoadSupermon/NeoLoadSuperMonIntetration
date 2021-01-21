@@ -1,6 +1,7 @@
 package com.neotys.supermon.datamodel;
 
-import com.neotys.ascode.swagger.client.model.CustomMonitor;
+
+import com.neotys.ascode.api.v3.client.model.CustomMonitor;
 import com.neotys.supermon.Logger.NeoLoadLogger;
 
 import java.util.ArrayList;
@@ -106,12 +107,14 @@ public class SuperMonData extends SupermonResponse{
         this.data = data;
     }
 
-    public List<CustomMonitor> toCustomMonitor(String databaseType, String databaseName,  NeoLoadLogger logger) {
+    public List<CustomMonitor> toCustomMonitor(NeoLoadLogger logger) {
         List<CustomMonitor> customMonitors=new ArrayList<>();
         logger.debug("Parsing the entries");
-        data.runIDSituationEntries.stream().forEach(suPerMonEntry -> {
-            logger.debug("parsing use case "+suPerMonEntry.getUSECASE_IDENTIFIER());
-            suPerMonEntry.toCustomMonitor(customMonitors,databaseType,databaseName,logger);
+
+        data.getRunSituationResult().stream().forEach(suPerMonEntry -> {
+            suPerMonEntry.convertToSuperMonEntry();
+            logger.debug("parsing the data of database scheme:  "+suPerMonEntry.getSchemaName());
+            suPerMonEntry.getData().toCustomMonitor(customMonitors,suPerMonEntry.getDatabaseType(),suPerMonEntry.getDatabaseName(),logger);
         });
 
         return customMonitors;

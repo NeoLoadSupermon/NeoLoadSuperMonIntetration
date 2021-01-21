@@ -7,8 +7,9 @@ public class Constants {
     public static final String WEBHOOKENDPATH="/webhookend";
     public static final String DEFAULT_NL_SAAS_API_URL="neoload-api.saas.neotys.com";
     public static final String DEFAULT_NL_WEB_API_URL="neoload.saas.neotys.com";
-    public static final String API_URL_VERSION="/v1";
+    public static final String API_URL_VERSION="/v3";
     public static final String TESTID_KEY="testid";
+    public static final String WORKSPACE_KEY="workspaceid";
     public static final String SECRET_API_TOKEN="NL_API_TOKEN";
     public static final String SECRET_NL_WEB_HOST="NL_WEB_HOST";
     public static final String SECRET_SSL="ssl";

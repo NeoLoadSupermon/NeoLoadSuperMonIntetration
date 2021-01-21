@@ -1,16 +1,11 @@
 package com.neotys.supermon.httpserver;
 
-import static com.neotys.supermon.conf.Constants.HEALTH_PATH;
-import static com.neotys.supermon.conf.Constants.HTTP_PORT;
-import static com.neotys.supermon.conf.Constants.SECRET_PORT;
-import static com.neotys.supermon.conf.Constants.TESTID_KEY;
-import static com.neotys.supermon.conf.Constants.WEBHOOKENDPATH;
-import static com.neotys.supermon.conf.Constants.WEBHOOKPATH;
-
 import java.util.HashMap;
 
 import com.google.gson.JsonSyntaxException;
-import com.neotys.ascode.swagger.client.ApiException;
+
+
+import com.neotys.ascode.api.v3.client.ApiException;
 import com.neotys.supermon.Logger.NeoLoadLogger;
 import com.neotys.supermon.common.NeoLoadException;
 import com.neotys.supermon.httpresult.NeoLoadHttpHandler;
@@ -25,6 +20,8 @@ import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import rx.Scheduler;
 import rx.schedulers.Schedulers;
+
+import static com.neotys.supermon.conf.Constants.*;
 
 
 public class WebHookReceiver extends AbstractVerticle {
@@ -57,9 +54,9 @@ public class WebHookReceiver extends AbstractVerticle {
             return;
         }
         JsonObject body=routingContext.getBodyAsJson();
-        if(body.containsKey(TESTID_KEY)) {
+        if(body.containsKey(TESTID_KEY)&& body.containsKey(WORKSPACE_KEY)) {
             String testid=body.getString(TESTID_KEY);
-
+            String workspaceid=body.getString(WORKSPACE_KEY);
             //----is test id currently processed?-----
             if(neoLoadHttpHandlerHashMap.containsKey(testid)) {
                 loadLogger.setTestid(testid);
@@ -103,14 +100,14 @@ public class WebHookReceiver extends AbstractVerticle {
         routingContext.response().setStatusCode(200).end("Health Check status OK");
     }
 
-    private void handleWebHookStart(final String testid) throws NeoLoadException, ApiException,JsonSyntaxException {
+    private void handleWebHookStart(final String testid,String workspaceid) throws NeoLoadException, ApiException,JsonSyntaxException {
 
         if(neoLoadHttpHandlerHashMap.containsKey(testid)) {
            loadLogger.info("This testid Has alreday been processed to start");
         } else {
                 Scheduler scheduler = Schedulers.newThread();
                 Scheduler.Worker worker = scheduler.createWorker();
-                NeoLoadHttpHandler neoLoadHttpHandler=new NeoLoadHttpHandler(testid);
+                NeoLoadHttpHandler neoLoadHttpHandler=new NeoLoadHttpHandler(testid,workspaceid);
                 Future<Boolean> future = neoLoadHttpHandler.start(vertx,worker);
                 future.setHandler(asyncResult -> {
                     if(asyncResult.succeeded()) {
@@ -128,16 +125,16 @@ public class WebHookReceiver extends AbstractVerticle {
             return;
         }
         JsonObject body = routingContext.getBodyAsJson();
-        if(body.containsKey(TESTID_KEY)) {
+        if(body.containsKey(TESTID_KEY)&&body.containsKey(WORKSPACE_KEY)) {
             String testid=body.getString(TESTID_KEY);
-
+            String workspaceid=body.getString(WORKSPACE_KEY);
             //----is test id currently processed?-----
             if(!neoLoadHttpHandlerHashMap.containsKey(testid))
             {
                 loadLogger.setTestid(testid);
                 loadLogger.debug("Received Webhook with testid  " + testid);
                 try {
-                    handleWebHookStart(testid);
+                    handleWebHookStart(testid,workspaceid);
                     routingContext.response().setStatusCode(200).end(" Start recording has been sent ");
                 } catch (ApiException e) {
                     {

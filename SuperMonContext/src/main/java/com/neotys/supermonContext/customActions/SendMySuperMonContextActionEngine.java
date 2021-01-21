@@ -9,10 +9,11 @@ import java.util.Map;
 import com.google.common.base.Optional;
 import com.google.gson.Gson;
 import com.neotys.action.result.ResultFactory;
-import com.neotys.ascode.swagger.client.ApiClient;
-import com.neotys.ascode.swagger.client.api.ResultsApi;
-import com.neotys.ascode.swagger.client.model.TestDefinition;
-import com.neotys.ascode.swagger.client.model.TestUpdateRequest;
+
+import com.neotys.ascode.api.v3.client.ApiClient;
+import com.neotys.ascode.api.v3.client.api.ResultsApi;
+import com.neotys.ascode.api.v3.client.model.TestResultDefinition;
+import com.neotys.ascode.api.v3.client.model.TestResultUpdateRequest;
 import com.neotys.extensions.action.ActionParameter;
 import com.neotys.extensions.action.engine.ActionEngine;
 import com.neotys.extensions.action.engine.Context;
@@ -42,8 +43,6 @@ public class SendMySuperMonContextActionEngine implements ActionEngine {
 
 
         final String applicationIdentifier = parsedArgs.get(SendMySuperMonOptions.applicationIdentifier.getName()).get();
-        final Optional<String> databaseType = parsedArgs.get(SendMySuperMonOptions.databaseType.getName());
-        final Optional<String> databaseName = parsedArgs.get(SendMySuperMonOptions.databaseName.getName());
         Optional<String> useCaseIdentifier = parsedArgs.get(SendMySuperMonOptions.useCaseIdentifier.getName());
 
 
@@ -63,19 +62,20 @@ public class SendMySuperMonContextActionEngine implements ActionEngine {
             Gson gson=new Gson();
 
 
-            TestUpdateRequest testUpdateRequest =new TestUpdateRequest();
+
+            TestResultUpdateRequest testUpdateRequest =new TestResultUpdateRequest();
 
             if(!useCaseIdentifier.isPresent())
             {
-                TestDefinition definition=resultsApi.getTest(context.getTestId());
+                TestResultDefinition definition=resultsApi.getTestResult(context.getWorkspaceId(),context.getTestId());
                 String testname=definition.getProject()+"_"+definition.getScenario();
                 useCaseIdentifier = Optional.of(testname);
             }
-            NeoLoadSuperMonDescription superMonDescription=new NeoLoadSuperMonDescription(applicationIdentifier,databaseType,databaseName,useCaseIdentifier.get());
+            NeoLoadSuperMonDescription superMonDescription=new NeoLoadSuperMonDescription(applicationIdentifier,useCaseIdentifier.get());
             String description=gson.toJson(superMonDescription);
 
             testUpdateRequest.description(description);
-            resultsApi.updateTest(testUpdateRequest,context.getTestId());
+            resultsApi.updateTestResult(testUpdateRequest,context.getWorkspaceId(),context.getTestId());
             appendLineToStringBuilder(responseBuilder, description);
 
         }catch (Exception e) {

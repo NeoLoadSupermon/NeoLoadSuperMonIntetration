@@ -2,10 +2,7 @@ package com.neotys.supermon;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.neotys.ascode.swagger.client.ApiClient;
-import com.neotys.ascode.swagger.client.ApiException;
-import com.neotys.ascode.swagger.client.api.ResultsApi;
-import com.neotys.ascode.swagger.client.model.TestDefinition;
+
 import com.neotys.supermon.datamodel.SuperMonData;
 import com.neotys.supermon.datamodel.SupermonStartResponse;
 import io.vertx.core.Vertx;
@@ -36,17 +33,7 @@ public class OauthTesting {
         vertx = Vertx.vertx();
 
     }
-    @Test
-    public void getdescription() throws ApiException {
-        ApiClient apiClient;
-        apiClient=new ApiClient();
-        apiClient.setBasePath(HTTPS+"neoload-api.saas.neotys.com/v1");
-        apiClient.setApiKey("<YOURAPIKTOKEN>");
-        ResultsApi resultsApi=new ResultsApi(apiClient);
-        TestDefinition definition=resultsApi.getTest("f395adbc-41ca-4049-8a7c-eb60b97d4458");
 
-        String description = definition.getDescription();
-    }
 
     @Test
     public void convertStart()
@@ -68,7 +55,7 @@ public class OauthTesting {
         Gson gson = new GsonBuilder().registerTypeAdapterFactory(new GsonJava8TypeAdapterFactory()).create();
 
         SuperMonData supermonStartResponse=gson.fromJson(response2, SuperMonData.class);
-        supermonStartResponse.getData().convertToSuperMonEntry();
+
         System.out.println(supermonStartResponse.getData().getUsecaseIdentifier());
 
     }
@@ -81,42 +68,7 @@ public class OauthTesting {
     @Test
     public void testOaut()
     {
-        CountDownLatch countDownLatch=new CountDownLatch(1);
-        OAuth2ClientOptions credentials = new OAuth2ClientOptions()
-                .setClientID("performanceDashboardClientId")
-                .setClientSecret("ljknsqy9tp6123")
-                .setSite("http://3.1.221.225:8110/mySuperMon")
-                .setTokenPath("/oauth/token");
 
 
-// Initialize the OAuth2 Library
-        OAuth2Auth oauth2 = OAuth2Auth.create(vertx, OAuth2FlowType.PASSWORD, credentials);
-
-        JsonObject tokenConfig = new JsonObject()
-                .put("username", "admin@system.com")
-                .put("password", "123456")
-                .put("scope","read");
-// Callbacks
-// Save the access token
-
-        oauth2.authenticate(tokenConfig, res -> {
-            if (res.failed()) {
-                System.err.println("Access Token Error: " + res.cause().getMessage());
-            } else {
-                // Get the access token object (the authorization code is given from the previous step).
-                User token = res.result();
-                String result = token .principal().getString("access_token");
-                Long expire=token.principal().getLong("expires_at");
-                System.out.println(token.principal().toString());
-                System.out.println("tokent to use "+ result+ "expires at "+expire.toString());
-            }
-            countDownLatch.countDown();
-        });
-
-        try {
-            countDownLatch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 }
