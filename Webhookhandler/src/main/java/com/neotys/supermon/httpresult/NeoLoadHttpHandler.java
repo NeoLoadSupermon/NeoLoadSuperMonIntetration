@@ -76,14 +76,22 @@ public class NeoLoadHttpHandler {
     }
 
     private NeoLoadSuperMonDescription getSuperMonDescriptionFromTest(String description) throws JsonSyntaxException, ApiException, InterruptedException, NeoLoadException {
-        if(description!=null) {
+        if(description!=null)
+        {
             if(description.isEmpty()||description.trim().isEmpty()) {
                 logger.debug("Description is currently empty--let's wait");
                 Thread.sleep(2000);
 
 
-                description=resultsApi.getTestResult(testid,worspaceid).getDescription();
-                logger.debug("descritpion retrieved "+ description);
+                TestResultDefinition testResultDefinition=resultsApi.getTestResult(worspaceid,testid);
+                if(testResultDefinition!=null) {
+                    if(testResultDefinition.getDescription()!=null)
+                    {
+                        description = testResultDefinition.getDescription();
+                        logger.debug("descritpion retrieved " + description);
+                    }
+
+                }
             }
 
             if(description.isEmpty()||description.trim().isEmpty())
@@ -238,7 +246,7 @@ public class NeoLoadHttpHandler {
             } else
                 booleanFuture.fail("Test id not found");
         } catch (ApiException e) {
-            logger.error("API exception ",e);
+            logger.error("API exception "+e.getResponseBody(),e);
             booleanFuture.fail(e);
         } catch (JsonSyntaxException e) {
             logger.error("Conversion issue",e);
