@@ -11,6 +11,7 @@ import com.google.gson.Gson;
 import com.neotys.action.result.ResultFactory;
 
 import com.neotys.ascode.api.v3.client.ApiClient;
+import com.neotys.ascode.api.v3.client.ApiException;
 import com.neotys.ascode.api.v3.client.api.ResultsApi;
 import com.neotys.ascode.api.v3.client.model.TestResultDefinition;
 import com.neotys.ascode.api.v3.client.model.TestResultUpdateRequest;
@@ -78,7 +79,11 @@ public class SendMySuperMonContextActionEngine implements ActionEngine {
             resultsApi.updateTestResult(testUpdateRequest,context.getWorkspaceId(),context.getTestId());
             appendLineToStringBuilder(responseBuilder, description);
 
-        }catch (Exception e) {
+        }
+        catch (ApiException e) {
+            return ResultFactory.newErrorResult(context, STATUS_CODE_TECHNICAL_ERROR, "Api Exeption  "+e.getResponseBody(), e);
+        }
+        catch (Exception e) {
             return ResultFactory.newErrorResult(context, STATUS_CODE_TECHNICAL_ERROR, "SuperMon Send Context technical Error ", e);
         }
 
