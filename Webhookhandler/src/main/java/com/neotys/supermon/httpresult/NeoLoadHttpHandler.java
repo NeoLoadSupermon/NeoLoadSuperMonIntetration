@@ -379,7 +379,7 @@ public class NeoLoadHttpHandler {
 
         cloud_api_Path=Optional.ofNullable(System.getenv(SECRET_CLOUD_API_PATH)).filter(o->!o.isEmpty());
         if(!cloud_api_Path.isPresent()) {
-            throw new NeoLoadException("The cloud api path environment varaible is missing");
+            cloud_api_Path=Optional.of("");
         }
 
         cloud_Oauth_token_path=Optional.ofNullable(System.getenv(SECRET_CLOUD_OAUT_TOKEN_PATH)).filter(o->!o.isEmpty());
