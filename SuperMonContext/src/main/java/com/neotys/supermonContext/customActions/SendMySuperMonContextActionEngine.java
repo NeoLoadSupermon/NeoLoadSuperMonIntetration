@@ -28,7 +28,7 @@ public class SendMySuperMonContextActionEngine implements ActionEngine {
     private static final String STATUS_CODE_INVALID_PARAMETER = "NL-SUPERMON-SENDCONTEXT_ACTION-01";
     private static final String STATUS_CODE_TECHNICAL_ERROR = "NL-SUPERMON-SENDCONTEXT_ACTION-02";
     private static final String STATUS_CODE_BAD_CONTEXT = "NL-SUPERMON-SENDCONTEXT_ACTION-03";
-    private static final String NLWEB_VERSION ="v1" ;
+    private static final String NLWEB_VERSION ="v3" ;
 
     public SampleResult execute(Context context, List<ActionParameter> parameters) {
         final SampleResult sampleResult = new SampleResult();
