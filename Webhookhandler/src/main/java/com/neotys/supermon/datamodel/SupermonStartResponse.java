@@ -2,8 +2,8 @@ package com.neotys.supermon.datamodel;
 
 public class SupermonStartResponse extends SupermonResponse {
     StartData data;
-    public SupermonStartResponse(String status, Integer code, StartData data, String errormessage, String errcode) {
-        super(status,code,errormessage,errcode);
+    public SupermonStartResponse(String status, Integer code, StartData data, String errormessage, String errcode, String reportLink) {
+        super(status,code,errormessage,errcode, reportLink);
         this.data = data;
 
     }

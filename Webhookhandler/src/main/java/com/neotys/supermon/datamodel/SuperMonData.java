@@ -93,8 +93,8 @@ public class SuperMonData extends SupermonResponse{
 
 
 
-    public SuperMonData(String status, Integer responseCode, SuperMonRunData entries, String errmessage, String errorcode) {
-        super(status, responseCode,errmessage,errorcode);
+    public SuperMonData(String status, Integer responseCode, SuperMonRunData entries, String errmessage, String errorcode, String reportLink) {
+        super(status, responseCode,errmessage,errorcode, reportLink);
         this.data=entries;
     }
 

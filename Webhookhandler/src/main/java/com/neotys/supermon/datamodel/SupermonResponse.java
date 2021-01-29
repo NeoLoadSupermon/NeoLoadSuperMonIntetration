@@ -62,13 +62,14 @@ public class SupermonResponse {
     Integer responseCode;
     String errorMessage;
     String errorCode;
+    String reportLink;
 
-
-    public SupermonResponse(String status, Integer responseCode,String errorMessage,String errorCode) {
+    public SupermonResponse(String status, Integer responseCode,String errorMessage,String errorCode, String reportLink) {
         this.status = status;
         this.responseCode = responseCode;
         this.errorCode=errorCode;
         this.errorMessage=errorMessage;
+        this.reportLink = reportLink;
     }
 
 
@@ -103,4 +104,15 @@ public class SupermonResponse {
     public void setResponseCode(Integer responseCode) {
         this.responseCode = responseCode;
     }
+
+
+	public String getReportLink() {
+		return reportLink;
+	}
+
+
+	public void setReportLink(String reportLink) {
+		this.reportLink = reportLink;
+	}
+    
 }

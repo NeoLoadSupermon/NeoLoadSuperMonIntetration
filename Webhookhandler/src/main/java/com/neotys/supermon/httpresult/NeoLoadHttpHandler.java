@@ -131,12 +131,12 @@ public class NeoLoadHttpHandler {
                     if (superMonStopResponse.getStatus().equalsIgnoreCase(MYSUPERMON_STATUS_SUCESS) && superMonStopResponse.getResponseCode().intValue() == MYSUPERMON_CODE_SUCESS.intValue()) {
                         //logger.debug("Stop done with sucess "+superMonStopResponse.getData().getInstanceInformation().getUsecaseIdentifier());
                         TestResultUpdateRequest updateRequest = new TestResultUpdateRequest();
-                        updateRequest.description("SupmerMon Dashboard : " + superMonStopResponse.getData().getApplicationUrl());
+                        updateRequest.description("SupmerMon Dashboard : " + superMonStopResponse.getReportLink());
                         logger.debug("URL to reach dashboard : "+updateRequest.getDescription());
                         try {
 
                             resultsApi.updateTestResult(updateRequest, worspaceid,testid);
-                            futureresult.complete(superMonStopResponse.getData().getApplicationUrl());
+                            futureresult.complete(superMonStopResponse.getReportLink());
                         } catch (ApiException e) {
                             logger.error("API Exeption "+e.getResponseBody(),e);
                         }

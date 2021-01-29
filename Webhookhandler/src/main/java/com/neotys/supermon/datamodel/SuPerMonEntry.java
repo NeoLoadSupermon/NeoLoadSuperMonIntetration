@@ -68,9 +68,9 @@ public class SuPerMonEntry {
     {
         MapwString = new HashMap<>();
         MapWDouble=new HashMap<>();
-        if(map.containsKey("STARTTIMESTMAP"))
+        if(map.containsKey("STARTTIMESTAMP"))
         {
-            this.STARTTIMESTMAP=(String)map.get("STARTTIMESTMAP");
+            this.STARTTIMESTMAP=(String)map.get("STARTTIMESTAMP");
         }
         else
             this.STARTTIMESTMAP=null;

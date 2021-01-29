@@ -113,8 +113,8 @@ public class SuperMonStopResponse extends SupermonResponse {
 	//	}
     StopData data;
 
-    public SuperMonStopResponse(String status, Integer responseCode, StopData url, String errormessage, String errorcode) {
-        super(status, responseCode,errormessage,errorcode);
+    public SuperMonStopResponse(String status, Integer responseCode, StopData url, String errormessage, String errorcode, String reportLink) {
+        super(status, responseCode,errormessage,errorcode, reportLink);
         this.data=url;
     }
 
