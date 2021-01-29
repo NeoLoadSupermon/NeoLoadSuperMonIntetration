@@ -5,6 +5,7 @@ import com.neotys.ascode.api.v3.client.model.CustomMonitor;
 import com.neotys.ascode.api.v3.client.model.CustomMonitorValues;
 import com.neotys.ascode.api.v3.client.model.CustomMonitorValuesInner;
 import com.neotys.supermon.Logger.NeoLoadLogger;
+import com.neotys.supermon.common.NeoLoadException;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -137,10 +138,14 @@ public class SuPerMonEntry {
 
     private long convertDate() throws ParseException {
 
-        //DateFormat m_ISO8601Local = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-        DateFormat m_ISO8601Local = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-        Date result=m_ISO8601Local.parse(STARTTIMESTMAP);
-        return result.getTime();
+        if(STARTTIMESTMAP!=null) {
+            DateFormat m_ISO8601Local = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+            //DateFormat m_ISO8601Local = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+            Date result = m_ISO8601Local.parse(STARTTIMESTMAP);
+            return result.getTime();
+        }
+        else
+            return 0;
     }
 
     public String getSTARTTIMESTMAP() {
@@ -190,9 +195,17 @@ public class SuPerMonEntry {
                     // valuesInners.s
                     CustomMonitorValuesInner customMonitorValuesInner = new CustomMonitorValuesInner();
                     try {
-                        customMonitorValuesInner.setTimestamp(convertDate() / 1000);
-                        logger.debug("date of metrics "+ String.valueOf(convertDate()/1000));
+                        if(convertDate()>0) {
+                            customMonitorValuesInner.setTimestamp(convertDate() / 1000);
+                            logger.debug("date of metrics " + String.valueOf(convertDate() / 1000));
+                        }
+                        else
+                            throw new NeoLoadException("The start timestamp is null");
+
                     } catch (ParseException e) {
+                        customMonitorValuesInner.setTimestamp(Instant.now().getEpochSecond());
+                    } catch (NeoLoadException e) {
+                        logger.error("The stattiumestamp has not beeen deserialized properly....taking the current date");
                         customMonitorValuesInner.setTimestamp(Instant.now().getEpochSecond());
                     }
 
