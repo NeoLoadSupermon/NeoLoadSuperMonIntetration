@@ -22,7 +22,7 @@ public class Constants {
     public static final String DATABASE="Database";
 
     public static final int SHEDULER_START=1;
-    public static final int SHEDULER_PERIOD=5;
+    public static final int SHEDULER_PERIOD=30;
 
     public static final String SECRET_CLOUD_PORT="mySuperMonPort";
     public static final String SECRET_CLOUD_HOST="mySuperMonAPIHostname";
