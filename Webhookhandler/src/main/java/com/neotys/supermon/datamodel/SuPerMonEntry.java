@@ -137,10 +137,12 @@ public class SuPerMonEntry {
 
     private long convertDate() throws ParseException {
 
-        DateFormat m_ISO8601Local = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        //DateFormat m_ISO8601Local = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        DateFormat m_ISO8601Local = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         Date result=m_ISO8601Local.parse(STARTTIMESTMAP);
         return result.getTime();
     }
+
     public String getSTARTTIMESTMAP() {
         return STARTTIMESTMAP;
     }

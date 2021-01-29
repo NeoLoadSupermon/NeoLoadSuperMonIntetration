@@ -83,19 +83,33 @@ public class NeoLoadHttpHandler {
                 Thread.sleep(2000);
 
 
-                TestResultDefinition testResultDefinition=resultsApi.getTestResult(worspaceid,testid);
-                if(testResultDefinition!=null) {
-                    if(testResultDefinition.getDescription()!=null)
-                    {
+                TestResultDefinition testResultDefinition = resultsApi.getTestResult(worspaceid, testid);
+                if (testResultDefinition != null) {
+                    if (testResultDefinition.getDescription() != null) {
                         description = testResultDefinition.getDescription();
                         logger.debug("descritpion retrieved " + description);
                     }
 
                 }
+
+                if (description.isEmpty() || description.trim().isEmpty()) {
+                    logger.debug("Description is still empty--let's wait");
+                    Thread.sleep(2000);
+
+
+                    testResultDefinition = resultsApi.getTestResult(worspaceid, testid);
+                    if (testResultDefinition != null) {
+                        if (testResultDefinition.getDescription() != null) {
+                            description = testResultDefinition.getDescription();
+                            logger.debug("descritpion retrieved " + description);
+                        }
+                    }
+                }
             }
 
             if(description.isEmpty()||description.trim().isEmpty())
                 throw new NeoLoadException("the NeoLoad is empty");
+
             logger.debug("Converting Description into java Object ->    "+ description);
             Gson gson = new GsonBuilder().registerTypeAdapterFactory(new GsonJava8TypeAdapterFactory()).create();
             NeoLoadSuperMonDescription superMonDescription = gson.fromJson(description, NeoLoadSuperMonDescription.class);
