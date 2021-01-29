@@ -138,7 +138,8 @@ public class SuPerMonEntry {
     private long convertDate() throws ParseException {
 
         DateFormat m_ISO8601Local = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-        Date result=m_ISO8601Local.parse(STARTTIMESTMAP);
+        // TODO: Its a dirty fix, but will do the correct inputs from mySuperMon @Pravin please fix this.
+        Date result= STARTTIMESTMAP ==null ? new Date() : m_ISO8601Local.parse(STARTTIMESTMAP);
         return result.getTime();
     }
     public String getSTARTTIMESTMAP() {
