@@ -170,7 +170,7 @@ public class Httpclient {
         logger.debug("Sending get request to "+ uri +" servhost "+serverhost +" port "+ serverport  );
         HttpRequest<Buffer> request = client.get(Integer.parseInt(serverport),serverhost,uri);
 
-        ;
+
 
 
         if(queryParams!=null)
@@ -188,46 +188,49 @@ public class Httpclient {
                 header.add(s, s2);
             });
             header.forEach(stringStringEntry -> {
-                logger.debug("Hader " + stringStringEntry.getKey() + " value " + stringStringEntry.getValue());
+                logger.debug("Header " + stringStringEntry.getKey() + " value " + stringStringEntry.getValue());
             });
-            request.putHeaders(header);
+            header.add("host",serverhost);
+
         }
 
 
-                request.send(handler->{
-                    if(handler.succeeded())
-                    {
-                        if(handler.result().statusCode()>=200 && handler.result().statusCode()<400) {
-                            logger.debug("Request sent successfuly - uri :" + uri);
-                            logger.debug("Received the following response :" + handler.result().toString());
-                            future.complete(handler.result().bodyAsJsonObject());
 
-                        }
-                        else
-                        {
-                            logger.error("Response code :" + handler.result().statusCode() + " and response  " + handler.result().bodyAsString());
-                            future.fail("Response code :" + handler.result().statusCode() + " and response  " + handler.result().bodyAsString());
 
-                        }
-                    }
-                    else
-                    {
-                        logger.error("Issue to get response ");
-                        if(handler.result()!=null) {
+        request.ssl(this.ssl).host(serverhost).send(handler->{
+            if(handler.succeeded())
+            {
+                if(handler.result().statusCode()>=200 && handler.result().statusCode()<400) {
+                    logger.debug("Request sent successfuly - uri :" + uri);
+                    logger.debug("Received the following response :" + handler.result().toString());
+                    future.complete(handler.result().bodyAsJsonObject());
 
-                            logger.error("Response code :" + handler.result().statusCode() + " and response  " + handler.result().bodyAsString());
-                            future.fail("Response code :" + handler.result().statusCode() + " and response  " + handler.result().bodyAsString());
+                }
+                else
+                {
+                    logger.error("Response code :" + handler.result().statusCode() + " and response  " + handler.result().bodyAsString());
+                    future.fail("Response code :" + handler.result().statusCode() + " and response  " + handler.result().bodyAsString());
 
-                        }
-                        else {
-                            logger.error("no Response ", handler.cause());
-                            future.fail("no Response " + handler.cause().getMessage());
+                }
+            }
+            else
+            {
+                logger.error("Issue to get response ");
+                if(handler.result()!=null) {
 
-                        }
+                    logger.error("Response code :" + handler.result().statusCode() + " and response  " + handler.result().bodyAsString());
+                    future.fail("Response code :" + handler.result().statusCode() + " and response  " + handler.result().bodyAsString());
 
-                    }
+                }
+                else {
+                    logger.error("no Response ", handler.cause());
+                    future.fail("no Response " + handler.cause().getMessage());
 
-                });
+                }
+
+            }
+
+        });
 
 
     }
