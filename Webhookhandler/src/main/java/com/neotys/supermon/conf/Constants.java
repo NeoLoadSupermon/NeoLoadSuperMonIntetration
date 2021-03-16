@@ -59,4 +59,8 @@ public class Constants {
     public static final String OAUT_TOKEN="access_token";
     public static final String OAUT_EXPIRES="expires_at";
 
+    public static final String NEOLOAD_VENDORNAME="NeoLoad";
+
+    public static final String EVENT_SOURCE_MYSUPERMON="MySupermon";
+    public static final String USERLOAD="User Load";
 }

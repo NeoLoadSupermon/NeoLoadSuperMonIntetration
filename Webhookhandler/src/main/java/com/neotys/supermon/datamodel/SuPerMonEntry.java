@@ -5,6 +5,7 @@ import com.neotys.ascode.api.v3.client.model.CustomMonitor;
 import com.neotys.ascode.api.v3.client.model.CustomMonitorValues;
 import com.neotys.ascode.api.v3.client.model.CustomMonitorValuesInner;
 import com.neotys.supermon.Logger.NeoLoadLogger;
+import com.neotys.supermon.common.MySupermonUtils;
 import com.neotys.supermon.common.NeoLoadException;
 
 import java.text.DateFormat;
@@ -136,17 +137,7 @@ public class SuPerMonEntry {
         this.ID = ID;
     }
 
-    private long convertDate() throws ParseException {
 
-        if(STARTTIMESTMAP!=null) {
-            DateFormat m_ISO8601Local = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-            //DateFormat m_ISO8601Local = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-            Date result = m_ISO8601Local.parse(STARTTIMESTMAP);
-            return result.getTime();
-        }
-        else
-            return 0;
-    }
 
     public String getSTARTTIMESTMAP() {
         return STARTTIMESTMAP;
@@ -195,9 +186,10 @@ public class SuPerMonEntry {
                     // valuesInners.s
                     CustomMonitorValuesInner customMonitorValuesInner = new CustomMonitorValuesInner();
                     try {
-                        if(convertDate()>0) {
-                            customMonitorValuesInner.setTimestamp(convertDate() / 1000);
-                            logger.debug("date of metrics " + String.valueOf(convertDate() / 1000));
+                        long converteddate=MySupermonUtils.convertDate(STARTTIMESTMAP);
+                        if(converteddate>0) {
+                            customMonitorValuesInner.setTimestamp(converteddate / 1000);
+                            logger.debug("date of metrics " + String.valueOf(converteddate / 1000));
                         }
                         else
                             throw new NeoLoadException("The start timestamp is null");

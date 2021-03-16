@@ -7,10 +7,7 @@ import com.google.gson.JsonSyntaxException;
 import com.neotys.ascode.api.v3.client.ApiClient;
 import com.neotys.ascode.api.v3.client.ApiException;
 import com.neotys.ascode.api.v3.client.api.ResultsApi;
-import com.neotys.ascode.api.v3.client.model.CustomMonitor;
-import com.neotys.ascode.api.v3.client.model.MonitorPostRequest;
-import com.neotys.ascode.api.v3.client.model.TestResultDefinition;
-import com.neotys.ascode.api.v3.client.model.TestResultUpdateRequest;
+import com.neotys.ascode.api.v3.client.model.*;
 import com.neotys.supermon.Logger.NeoLoadLogger;
 import com.neotys.supermon.common.NeoLoadException;
 import com.neotys.supermon.conf.Constants.*;
@@ -26,11 +23,13 @@ import rx.Scheduler;
 import rx.Single;
 import rx.Subscription;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static com.neotys.supermon.conf.Constants.*;
 
@@ -58,6 +57,10 @@ public class NeoLoadHttpHandler {
     private List<DatabaseEntity> databaseEntityList;
     private Subscription subscription;
     private String worspaceid;
+    private HashMap<String,List<String>> userloadCounterIdList=new HashMap<>();
+    private String userLoadGlobalCounterID;
+
+    public long starttime;
 
     public NeoLoadHttpHandler(String testid,String workspaceid ) throws NeoLoadException {
         this.testid=testid;
@@ -108,7 +111,7 @@ public class NeoLoadHttpHandler {
             }
 
             if(description.isEmpty()||description.trim().isEmpty())
-                throw new NeoLoadException("the NeoLoad is empty");
+                throw new NeoLoadException("the NeoLoad description is empty");
 
             logger.debug("Converting Description into java Object ->    "+ description);
             Gson gson = new GsonBuilder().registerTypeAdapterFactory(new GsonJava8TypeAdapterFactory()).create();
@@ -171,18 +174,102 @@ public class NeoLoadHttpHandler {
     }
 
 
-    @SuppressWarnings("deprecation")
-	public Completable run(Vertx vertx) {
+    private void getCounterIds() throws NeoLoadException {
+
+        try {
+            CounterDefinitionArray counterDefinitions = resultsApi.getTestResultMonitors(worspaceid, testid);
+            if(counterDefinitions!=null)
+            {
+                counterDefinitions.stream().filter(counterDefinition -> counterDefinition.getName().equalsIgnoreCase(USERLOAD)).filter(counterDefinition -> counterDefinition.getPath().size()>3).forEach(counterDefinition ->
+                {
+                    userloadCounterIdList.put(counterDefinition.getId(),counterDefinition.getPath());
+                });
+
+                Optional<CounterDefinition> optionalCounterDefinition=counterDefinitions.stream().filter(counterDefinition -> counterDefinition.getName().equalsIgnoreCase(USERLOAD)).filter(counterDefinition -> counterDefinition.getPath().size()==2).findFirst();
+                if(!optionalCounterDefinition.isPresent())
+                    throw new NeoLoadException("Unable to find the global User Load");
+                else
+                {
+                    userLoadGlobalCounterID=optionalCounterDefinition.get().getId();
+                }
+            }
+
+        } catch (ApiException e) {
+            logger.error("Unable to get the counters "+e.getResponseBody(),e);
+            throw new NeoLoadException("Unable to get the counters "+e.getResponseBody());
+        }
+    }
+
+
+    private String generateRunPayload() throws NeoLoadException {
+        try {
+                if(userloadCounterIdList.size()==0)
+                {
+                    getCounterIds();
+                }
+                NeoloadRunPayload neoloadRunPayload =new NeoloadRunPayload(usecase,Instant.now().toEpochMilli());
+                //getting the current user load
+                if(userLoadGlobalCounterID!=null)
+                {
+                   Points userload=resultsApi.getTestResultMonitorsPoints(worspaceid,testid,userLoadGlobalCounterID);
+                   Optional<Point> optionalPoint=userload.stream().sorted((o1, o2) -> o1.getFrom().compareTo(o2.getFrom())).filter(point -> point.getFrom()>= (Instant.now().toEpochMilli()- starttime)).findFirst();
+                   if(optionalPoint.isPresent())
+                   {
+                       neoloadRunPayload.setCurrentload(optionalPoint.get().getAVG().intValue());
+                   }
+                }
+
+
+                ///--get the values of each counters
+                if(userloadCounterIdList.size()>0)
+                {
+                    userloadCounterIdList.forEach((s, strings) ->
+                    {
+                        try {
+                            Points points=resultsApi.getTestResultMonitorsPoints(worspaceid, testid, s);
+                            Optional<Point> optionalPoint=points.stream().sorted((o1, o2) -> o1.getFrom().compareTo(o2.getFrom())).filter(point -> point.getFrom()>= (Instant.now().toEpochMilli()- starttime)).findFirst();
+                            if(optionalPoint.isPresent())
+                            {
+                                LoadDetail loadDetail=new LoadDetail(strings.get(1),strings.get(2),optionalPoint.get().getAVG().intValue());
+                                neoloadRunPayload.addLoadDetail(loadDetail);
+                            }
+                        } catch (ApiException e) {
+                            logger.error("Unable to get the points for the counterid "+s +" response :"+e.getResponseBody(),e);
+
+                        }
+
+                    });
+
+                }
+
+                Gson gson =new GsonBuilder().create();
+                String payload=gson.toJson(neoloadRunPayload,NeoloadRunPayload.class);
+
+                logger.debug("Payload generated  "+payload);
+                return payload;
+
+        } catch (ApiException e) {
+            logger.error("Unable to retrieve the counters "+e.getResponseBody(),e);
+            throw new NeoLoadException("Unable to retrieve the counters "+e.getResponseBody());
+        }
+    }
+
+    public Completable run(Vertx vertx) {
         return Completable.create(singleSubscriber -> {
+
+            try {
             logger.info("Getting description from testid "+ testid);
             Httpclient client=new Httpclient(vertx,cloudhost.get(),cloudport.get(),cloud_api_Path.get(),cloud_Oauth_token_path.get(),ssl);
             HashMap<String,String> header=new HashMap<>();
             header.put(HEADER_SCHEME,applicationIdentifier);
-            HashMap<String,String> params=new HashMap<>();
-            params.put(GET_IDETIFIER,usecase);
-            params.put(GET_OPERATION,MYSUPERMON_OPERATION_RUN);
+
             logger.info("Sending run request "+ testid);
-            Future<JsonObject> jsonObjectFuture=client.sendGetOAUTHRequest(cloud_api_Path.get()+MYSUPERMON_API_PATH,header,credentials,params);
+
+
+            String payload=generateRunPayload();
+            JsonObject body=new JsonObject(payload);
+
+            Future<JsonObject> jsonObjectFuture=client.sendPostOAUTHRequest(cloud_api_Path.get()+MYSUPERMON_API_PATH,header,credentials,null,body);
             jsonObjectFuture.setHandler(jsonObjectAsyncResult -> {
                 if(jsonObjectAsyncResult.succeeded()) {
                     logger.debug("Response received "+ jsonObjectAsyncResult.result().toString());
@@ -225,7 +312,11 @@ public class NeoLoadHttpHandler {
                     singleSubscriber.onError( jsonObjectAsyncResult.cause());
                 }
             });
-        });
+        } catch (NeoLoadException e) {
+            logger.error("issue while generating the run payload "+e.getMessage(),e);
+        }
+      });
+
     }
     
     public Future<Boolean> start(Vertx vertx, Scheduler.Worker worker) throws ApiException,JsonSyntaxException {
@@ -233,6 +324,7 @@ public class NeoLoadHttpHandler {
         try {
 
             TestResultDefinition testDefinition = resultsApi.getTestResult(worspaceid,testid);
+            starttime=testDefinition.getStartDate();
             logger.info("Getting description from testid " + testid);
             if(testDefinition != null) {
                 NeoLoadSuperMonDescription description = getSuperMonDescriptionFromTest(testDefinition.getDescription());

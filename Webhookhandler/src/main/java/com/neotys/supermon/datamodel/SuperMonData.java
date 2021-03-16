@@ -9,7 +9,6 @@ import java.util.List;
 
 public class SuperMonData extends SupermonResponse{
     SuperMonRunData data;
-
 	//    {
 	//        "status": "200 OK",
 	//        "responseCode": 200,

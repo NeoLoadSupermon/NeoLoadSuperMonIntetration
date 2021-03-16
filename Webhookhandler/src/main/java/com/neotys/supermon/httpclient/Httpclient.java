@@ -163,7 +163,77 @@ public class Httpclient {
 
         return future;
     }
+    public void sendPostRequest(Future<JsonObject> future,String uri, HashMap<String,String> headers,HashMap<String,String> queryParams,JsonObject body)
+    {
 
+        logger.debug("Sending Post request to "+ uri +" servhost "+serverhost +" port "+ serverport  );
+        HttpRequest<Buffer> request = client.post(Integer.parseInt(serverport),serverhost,uri);
+
+
+
+
+        if(queryParams!=null)
+        {
+            logger.debug("adding parameters ");
+            queryParams.forEach((s, s2) -> {
+                request.addQueryParam(s,s2);
+                logger.debug(" parametere "+s+" value "+s2);
+            });
+        }
+        if(headers!=null) {
+            MultiMap header = ((HttpRequest) request).headers();
+            headers.forEach((s, s2) -> {
+                logger.debug("adding header " + s + " value " + s2);
+                header.add(s, s2);
+            });
+            header.forEach(stringStringEntry -> {
+                logger.debug("Header " + stringStringEntry.getKey() + " value " + stringStringEntry.getValue());
+            });
+            header.add("host",serverhost);
+
+        }
+
+
+
+
+        request.ssl(this.ssl).host(serverhost).sendJsonObject(body,handler->{
+            if(handler.succeeded())
+            {
+                if(handler.result().statusCode()>=200 && handler.result().statusCode()<400) {
+                    logger.debug("Request sent successfuly - uri :" + uri);
+                    logger.debug("Payload of the request "+body.toString());
+                    logger.debug("Received the following response :" + handler.result().toString());
+                    future.complete(handler.result().bodyAsJsonObject());
+
+                }
+                else
+                {
+                    logger.error("Response code :" + handler.result().statusCode() + " and response  " + handler.result().bodyAsString());
+                    future.fail("Response code :" + handler.result().statusCode() + " and response  " + handler.result().bodyAsString());
+
+                }
+            }
+            else
+            {
+                logger.error("Issue to get response from post request");
+                if(handler.result()!=null) {
+
+                    logger.error("Response code :" + handler.result().statusCode() + " and response  " + handler.result().bodyAsString());
+                    future.fail("Response code :" + handler.result().statusCode() + " and response  " + handler.result().bodyAsString());
+
+                }
+                else {
+                    logger.error("no Response ", handler.cause());
+                    future.fail("no Response " + handler.cause().getMessage());
+
+                }
+
+            }
+
+        });
+
+
+    }
     public void sendGetRequest(Future<JsonObject> future,String uri, HashMap<String,String> headers,HashMap<String,String> queryParams)
     {
 
@@ -270,6 +340,45 @@ public class Httpclient {
         return future;
 
     }
+
+
+    public Future<JsonObject> sendPostOAUTHRequest(String uri, HashMap<String,String> headers,Credentials credentials,HashMap<String,String> queryParams,JsonObject body)
+    {
+
+        Future<JsonObject> future=Future.future();
+        if(!isAuthentificated())
+        {
+            Future<ApiOauth> apiOauthFuture=getCredentials(credentials);
+            apiOauthFuture.setHandler(apiOauthAsyncResult -> {
+                if(apiOauthAsyncResult.succeeded())
+                {
+                    apiOauth=apiOauthAsyncResult.result();
+                    headers.put("Authorization","Bearer "+apiOauth.getToken());
+                    logger.debug("Authentification done - seding request ");
+                    headers.forEach((s, s2) -> {
+                        logger.debug("header key "+s +" value "+s2);
+                    });
+                    sendPostRequest(future,uri,headers,queryParams,body);
+                }
+                else
+                {
+                    logger.debug("Authentification failed");
+                    future.fail(apiOauthAsyncResult.cause());
+                }
+            });
+
+        }
+        else
+        {
+            headers.put("Authorization","Bearer "+apiOauth.getToken());
+            sendPostRequest(future,uri,headers,queryParams,body);
+        }
+
+
+        return future;
+
+    }
+
 
     public Future<JsonObject> sendJsonObject(String uri, HashMap<String,String> headers, JsonObject object)
     {
