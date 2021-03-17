@@ -59,6 +59,7 @@ public class NeoLoadHttpHandler {
     private String worspaceid;
     private HashMap<String,List<String>> userloadCounterIdList=new HashMap<>();
     private String userLoadGlobalCounterID;
+    private HashMap<String,String> eventIdmap;
 
     public long starttime;
 
@@ -76,6 +77,7 @@ public class NeoLoadHttpHandler {
         apiClient.setApiKey(neoload_API_key);
         resultsApi=new ResultsApi(apiClient);
         credentials=new Credentials(user.get(),password.get(),clien_id.get(),client_secret.get(),"read");
+        eventIdmap=new HashMap<>();
     }
 
     private NeoLoadSuperMonDescription getSuperMonDescriptionFromTest(String description) throws JsonSyntaxException, ApiException, InterruptedException, NeoLoadException {
@@ -269,7 +271,7 @@ public class NeoLoadHttpHandler {
             String payload=generateRunPayload();
             JsonObject body=new JsonObject(payload);
 
-            Future<JsonObject> jsonObjectFuture=client.sendPostOAUTHRequest(cloud_api_Path.get()+MYSUPERMON_API_PATH,header,credentials,null,body);
+            Future<JsonObject> jsonObjectFuture=client.sendPostOAUTHRequest(cloud_api_Path.get()+MYSUPERMON_POSTAPI_PATH,header,credentials,null,body);
             jsonObjectFuture.setHandler(jsonObjectAsyncResult -> {
                 if(jsonObjectAsyncResult.succeeded()) {
                     logger.debug("Response received "+ jsonObjectAsyncResult.result().toString());
@@ -299,6 +301,57 @@ public class NeoLoadHttpHandler {
                                 logger.error("Message -> "+e.getResponseBody());
                                 singleSubscriber.onError(e);
                             }
+                            ///---handle the mysupermon event---
+                            if(superMonData.getData()!=null && superMonData.getData().getRunSituationResult()!=null ) {
+                                superMonData.getData().getRunSituationResult().stream().forEach(situationResult ->
+                                {
+                                if (situationResult.getEvents() != null) {
+                                    List<PostCustomEventRequest> postCustomEventRequestList = situationResult.getEvents().stream().map(mySuperMonEvent -> {
+                                        try {
+                                            return mySuperMonEvent.toNeoLoadEvent(situationResult.getDatabaseType() + "_" + situationResult.getDatabaseName());
+                                        } catch (NeoLoadException e) {
+                                            logger.error("Unable to convert this event into postcustomeventrequest " + e.getMessage());
+                                            return null;
+                                        }
+                                    }).filter(postCustomEventRequest -> postCustomEventRequest != null).collect(Collectors.toList());
+                                    postCustomEventRequestList.stream().forEach(postCustomEventRequest ->
+                                    {
+                                        try {
+                                            if(eventIdmap.containsKey(postCustomEventRequest.getCode()+"_"+postCustomEventRequest.getFullname()))
+                                            {
+                                                //case of updating
+                                                if(postCustomEventRequest.getEndTimestamp()!=null)
+                                                {
+                                                    String eventid=eventIdmap.get(postCustomEventRequest.getCode()+"_"+postCustomEventRequest.getFullname());
+                                                    PatchCustomEventRequest patchCustomEventRequest=new PatchCustomEventRequest();
+                                                    patchCustomEventRequest.setEndTimestamp(postCustomEventRequest.getEndTimestamp());
+                                                    patchCustomEventRequest.setDescription(postCustomEventRequest.getDescription());
+                                                    patchCustomEventRequest.setUrl(postCustomEventRequest.getUrl());
+                                                    resultsApi.patchTestResultCustomEvent(patchCustomEventRequest,worspaceid,testid,eventid);
+                                                    logger.debug("Event has been updated id "+eventid);
+                                                    eventIdmap.remove(postCustomEventRequest.getCode()+"_"+postCustomEventRequest.getFullname());
+                                                }
+                                            }
+                                            else
+                                            {
+                                                PostCustomEventResponse postCustomEventResponse=resultsApi.postTestResultCustomEvent(postCustomEventRequest,worspaceid,testid);
+                                                logger.debug("Event has been created id "+postCustomEventResponse.getId());
+                                                if(postCustomEventRequest.getEndTimestamp()==null)
+                                                {
+                                                    //--requires to store it to update it later
+                                                    eventIdmap.put(postCustomEventRequest.getCode()+"_"+postCustomEventRequest.getFullname(),postCustomEventResponse.getId());
+                                                }
+                                            }
+
+                                        } catch (ApiException e) {
+                                            logger.error("unable to create event in neoload "+postCustomEventRequest.getFullname()+" response from the api "+e.getResponseBody(),e);
+                                        }
+                                    });
+                                }
+                                });
+                            }
+
+
                         } else {
                             logger.debug("RUN - Unable to find data");
                             singleSubscriber.onError(new NeoLoadException("RUN - Unable to find data"));

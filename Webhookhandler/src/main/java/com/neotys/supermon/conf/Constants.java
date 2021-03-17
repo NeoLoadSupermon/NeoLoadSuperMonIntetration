@@ -49,6 +49,7 @@ public class Constants {
 
     //-----url path to interact with SUPERMON----$
     public static final String MYSUPERMON_API_PATH="/devaten/data/operation";
+    public static final String MYSUPERMON_POSTAPI_PATH="/integration/neoload/operations";
     public static final String MYSUPERMON_OPERATION_STARTRECORDING="start";
     public static final String MYSUPERMON_OPERATION_STOPRECORDING="stop";
     public static final String MYSUPERMON_OPERATION_RUN="run";

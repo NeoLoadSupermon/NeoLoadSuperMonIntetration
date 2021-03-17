@@ -34,6 +34,7 @@ public class SituationResult {
 
     }
 
+
     public void setData(HashMap<String, Object> data) {
         this.data = data;
     }
