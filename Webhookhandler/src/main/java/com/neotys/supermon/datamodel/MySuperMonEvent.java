@@ -26,28 +26,28 @@ public class MySuperMonEvent {
     MySuperMonEventType type;
     String description;
     String status;
-    String metricName;
+    String metrixName;
     String links;
     Double deviation;
     Double value;
     Double oldValue;
     MySuperMonThresholdDefinition definition;
-    String startTimestamp;
-    String endTimestamp;
+    String starttimestamp;
+    String endtimestamp;
     String nleventid;
 
     public MySuperMonEvent(MySuperMonEventType type, String description, String status, String metricName, String links, Double deviation, Double value, Double oldValue, MySuperMonThresholdDefinition definition, String startTimestamp, String endTimestamp) {
         this.type = type;
         this.description = description;
         this.status = status;
-        this.metricName = metricName;
+        this.metrixName = metricName;
         this.links = links;
         this.deviation = deviation;
         this.value = value;
         this.oldValue = oldValue;
         this.definition = definition;
-        this.startTimestamp = startTimestamp;
-        this.endTimestamp = endTimestamp;
+        this.starttimestamp = startTimestamp;
+        this.endtimestamp = endTimestamp;
     }
 
     public PostCustomEventRequest toNeoLoadEvent(String instance) throws NeoLoadException {
@@ -61,12 +61,12 @@ public class MySuperMonEvent {
                 postCustomEventRequest.code(type.toString());
 
                 long converte_date= 0;
-                converte_date = MySupermonUtils.convertDate(this.startTimestamp);
+                converte_date = MySupermonUtils.convertDate(this.starttimestamp);
                  if(converte_date>0)
                         postCustomEventRequest.setStartTimestamp(BigDecimal.valueOf(converte_date / 1000));
-                if(this.endTimestamp!=null)
+                if(this.endtimestamp!=null)
                 {
-                    converte_date = MySupermonUtils.convertDate(this.endTimestamp);
+                    converte_date = MySupermonUtils.convertDate(this.endtimestamp);
                     if(converte_date>0)
                         postCustomEventRequest.setEndTimestamp(BigDecimal.valueOf(converte_date));
                 }
@@ -82,14 +82,14 @@ public class MySuperMonEvent {
 
     private String generateFullName(String instance)
     {
-        return EVENT_SOURCE_MYSUPERMON+" "+type.toString()+" on "+instance+" on "+this.metricName;
+        return EVENT_SOURCE_MYSUPERMON+" "+type.toString()+" on "+instance+" on "+this.metrixName;
 
     }
 
     private String generateEventDescription(String instance)
     {
         StringBuilder stringBuilder=new StringBuilder();
-        stringBuilder.append(EVENT_SOURCE_MYSUPERMON+" "+type.toString()+" on "+instance+" on "+this.metricName);
+        stringBuilder.append(EVENT_SOURCE_MYSUPERMON+" "+type.toString()+" on "+instance+" on "+this.metrixName);
         stringBuilder.append("Current value : "+ String.valueOf(this.value)+"\n");
         stringBuilder.append("Previous/BaseLine value " +String.valueOf(this.oldValue)+"\n");
         if(definition!=null) {
@@ -139,11 +139,11 @@ public class MySuperMonEvent {
     }
 
     public String getMetricName() {
-        return metricName;
+        return metrixName;
     }
 
     public void setMetricName(String metricName) {
-        this.metricName = metricName;
+        this.metrixName = metricName;
     }
 
     public String getLinks() {
@@ -187,18 +187,18 @@ public class MySuperMonEvent {
     }
 
     public String getStartTimestamp() {
-        return startTimestamp;
+        return starttimestamp;
     }
 
     public void setStartTimestamp(String startTimestamp) {
-        this.startTimestamp = startTimestamp;
+        this.starttimestamp = startTimestamp;
     }
 
     public String getEndTimestamp() {
-        return endTimestamp;
+        return endtimestamp;
     }
 
     public void setEndTimestamp(String endTimestamp) {
-        this.endTimestamp = endTimestamp;
+        this.endtimestamp = endTimestamp;
     }
 }

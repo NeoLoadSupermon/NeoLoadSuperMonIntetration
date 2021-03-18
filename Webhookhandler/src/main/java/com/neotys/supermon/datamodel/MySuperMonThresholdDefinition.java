@@ -4,20 +4,20 @@ public class MySuperMonThresholdDefinition {
     //errorThrueshold :
     ////							   warningThreshold :
 
-    String errorThrueshold;
+    String errorThreshold;
     String warningThreshold;
 
     public MySuperMonThresholdDefinition(String errorThrueshold, String warningThreshold) {
-        this.errorThrueshold = errorThrueshold;
+        this.errorThreshold = errorThrueshold;
         this.warningThreshold = warningThreshold;
     }
 
     public String getErrorThrueshold() {
-        return errorThrueshold;
+        return errorThreshold;
     }
 
     public void setErrorThrueshold(String errorThrueshold) {
-        this.errorThrueshold = errorThrueshold;
+        this.errorThreshold = errorThrueshold;
     }
 
     public String getWarningThreshold() {

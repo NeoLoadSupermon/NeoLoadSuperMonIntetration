@@ -1,13 +1,23 @@
 package com.neotys.supermon;
 
+import static com.neotys.supermon.conf.Constants.HTTPS;
 import static com.neotys.supermon.conf.Constants.LOGING_LEVEL_KEY;
+import static com.neotys.supermon.conf.Constants.USERLOAD;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
+import com.neotys.ascode.api.v3.client.ApiClient;
+import com.neotys.ascode.api.v3.client.ApiException;
+import com.neotys.ascode.api.v3.client.api.ResultsApi;
+import com.neotys.ascode.api.v3.client.model.CounterDefinition;
+import com.neotys.ascode.api.v3.client.model.CounterDefinitionArray;
+import com.neotys.supermon.common.NeoLoadException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -27,11 +37,11 @@ public class OauthTesting {
     Vertx vertx;
     NeoLoadLogger neoloadLogger;
 
-    @Before
+   /* @Before
     public void before()   {
         vertx = Vertx.vertx();
         neoloadLogger = new NeoLoadLogger(this.getClass().getName());
-    }
+    }*/
 
 
     @Test
@@ -179,10 +189,40 @@ public class OauthTesting {
         Date result=m_ISO8601Local.parse("2020-05-15T09:27:32.000+0000");
         System.out.println(result.getTime());
     }
-    @Test
-    public void testOaut()
+   // @Test
+    public void testcounterid()
     {
+		HashMap<String, List<String>> userloadCounterIdList =new HashMap<>();
+		String userLoadGlobalCounterID;
+		String worspaceid="5e3acde2e860a132744ca916";
+		String testid="387e041e-b9c4-4f37-8d83-7a618629163c";
+		ApiClient apiClient=new ApiClient();
+		apiClient.setBasePath(HTTPS+"neoload-api.saas.neotys.com");
+		apiClient.setApiKey("upiapi");
+		ResultsApi resultsApi=new ResultsApi(apiClient);
+		try {
+			CounterDefinitionArray counterDefinitions = resultsApi.getTestResultMonitors(worspaceid, testid);
+			if(counterDefinitions!=null)
+			{
+				counterDefinitions.stream().filter(counterDefinition -> counterDefinition.getName().equalsIgnoreCase(USERLOAD)).filter(counterDefinition -> counterDefinition.getPath().size()>3).forEach(counterDefinition ->
+				{
+					userloadCounterIdList.put(counterDefinition.getId(),counterDefinition.getPath());
+					System.out.println("Adding the counter "+counterDefinition.getId() );
+				});
 
+				Optional<CounterDefinition> optionalCounterDefinition=counterDefinitions.stream().filter(counterDefinition -> counterDefinition.getName().equalsIgnoreCase(USERLOAD)).filter(counterDefinition -> counterDefinition.getPath().size()==2).findFirst();
+				if(!optionalCounterDefinition.isPresent())
+					System.out.println("Unable to find the global User Load");
+				else
+				{
+					userLoadGlobalCounterID=optionalCounterDefinition.get().getId();
+					System.out.println("Adding the Global user load counter "+optionalCounterDefinition.get().getId() );
+				}
+			}
+
+		} catch (ApiException e) {
+			System.out.println(e.getResponseBody());
+		}
 
     }
 }
