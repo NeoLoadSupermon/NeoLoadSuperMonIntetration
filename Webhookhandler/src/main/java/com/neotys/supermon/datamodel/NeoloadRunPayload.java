@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static com.neotys.supermon.conf.Constants.NEOLOAD_VENDORNAME;
+
 //vendorName": "NeoLoad",
 //    "currentload": 1,
 //    "usecaseIdentifier":"FIND-PRODUCTS",
@@ -21,6 +23,7 @@ public class NeoloadRunPayload {
     Integer  currentload;
     String usecaseIdentifier;
     String starttimestamp;
+    String vendorName;
     List<LoadDetail> loadDetail=new ArrayList<>();
 
     public Integer getCurrentload() {
@@ -64,6 +67,7 @@ public class NeoloadRunPayload {
         this.usecaseIdentifier = usecaseIdentifier;
         this.starttimestamp = starttimestamp;
         this.loadDetail = loadDetail;
+        this.vendorName=NEOLOAD_VENDORNAME;
     }
 
     public NeoloadRunPayload( String usecaseIdentifier, long starttimestamp) {
@@ -73,7 +77,7 @@ public class NeoloadRunPayload {
 
         DateFormat m_ISO8601Local = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         this.starttimestamp= m_ISO8601Local.format(now);
-
+        this.vendorName=NEOLOAD_VENDORNAME;
 
     }
 }

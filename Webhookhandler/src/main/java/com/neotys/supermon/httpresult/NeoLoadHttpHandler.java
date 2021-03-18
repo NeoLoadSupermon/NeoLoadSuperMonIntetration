@@ -185,6 +185,7 @@ public class NeoLoadHttpHandler {
                 counterDefinitions.stream().filter(counterDefinition -> counterDefinition.getName().equalsIgnoreCase(USERLOAD)).filter(counterDefinition -> counterDefinition.getPath().size()>3).forEach(counterDefinition ->
                 {
                     userloadCounterIdList.put(counterDefinition.getId(),counterDefinition.getPath());
+                    logger.debug("Adding the counter "+counterDefinition.getId() );
                 });
 
                 Optional<CounterDefinition> optionalCounterDefinition=counterDefinitions.stream().filter(counterDefinition -> counterDefinition.getName().equalsIgnoreCase(USERLOAD)).filter(counterDefinition -> counterDefinition.getPath().size()==2).findFirst();
@@ -193,6 +194,7 @@ public class NeoLoadHttpHandler {
                 else
                 {
                     userLoadGlobalCounterID=optionalCounterDefinition.get().getId();
+                    logger.debug("Adding the Global user load counter "+optionalCounterDefinition.get().getId() );
                 }
             }
 
@@ -207,34 +209,49 @@ public class NeoLoadHttpHandler {
         try {
                 if(userloadCounterIdList.size()==0)
                 {
+                    logger.debug("getting the counterid from neoload web");
                     getCounterIds();
                 }
                 NeoloadRunPayload neoloadRunPayload =new NeoloadRunPayload(usecase,Instant.now().toEpochMilli());
                 //getting the current user load
                 if(userLoadGlobalCounterID!=null)
                 {
+                    logger.debug("getting the points for the coutnerb");
+
                    Points userload=resultsApi.getTestResultMonitorsPoints(worspaceid,testid,userLoadGlobalCounterID);
                    Optional<Point> optionalPoint=userload.stream().sorted((o1, o2) -> o1.getFrom().compareTo(o2.getFrom())).filter(point -> point.getFrom()>= (Instant.now().toEpochMilli()- starttime)).findFirst();
                    if(optionalPoint.isPresent())
                    {
+                       logger.debug("getting the the global user laod "+String.valueOf(optionalPoint.get().getAVG().intValue()));
+
                        neoloadRunPayload.setCurrentload(optionalPoint.get().getAVG().intValue());
                    }
+                   else
+                        logger.debug("Unable to find values");
                 }
+                else
+                   logger.debug("The global counter userload is empty");
 
 
                 ///--get the values of each counters
                 if(userloadCounterIdList.size()>0)
                 {
+                    logger.debug("getting the the detail load ");
+
                     userloadCounterIdList.forEach((s, strings) ->
                     {
                         try {
+                            logger.debug("getting the points for "+s);
                             Points points=resultsApi.getTestResultMonitorsPoints(worspaceid, testid, s);
                             Optional<Point> optionalPoint=points.stream().sorted((o1, o2) -> o1.getFrom().compareTo(o2.getFrom())).filter(point -> point.getFrom()>= (Instant.now().toEpochMilli()- starttime)).findFirst();
                             if(optionalPoint.isPresent())
                             {
+                                logger.debug("details :  "+strings.get(1)+ " " +strings.get(2)+" value "+String.valueOf(optionalPoint.get().getAVG().intValue()));
                                 LoadDetail loadDetail=new LoadDetail(strings.get(1),strings.get(2),optionalPoint.get().getAVG().intValue());
                                 neoloadRunPayload.addLoadDetail(loadDetail);
                             }
+                            else
+                                logger.debug("Unable to find values");
                         } catch (ApiException e) {
                             logger.error("Unable to get the points for the counterid "+s +" response :"+e.getResponseBody(),e);
 
@@ -243,6 +260,8 @@ public class NeoLoadHttpHandler {
                     });
 
                 }
+                else
+                    logger.debug("The counter list is empty");
 
                 Gson gson =new GsonBuilder().create();
                 String payload=gson.toJson(neoloadRunPayload,NeoloadRunPayload.class);
@@ -269,6 +288,7 @@ public class NeoLoadHttpHandler {
 
 
             String payload=generateRunPayload();
+            logger.debug("Payload generated "+ payload);
             JsonObject body=new JsonObject(payload);
 
             Future<JsonObject> jsonObjectFuture=client.sendPostOAUTHRequest(cloud_api_Path.get()+MYSUPERMON_POSTAPI_PATH,header,credentials,null,body);
